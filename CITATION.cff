@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use graphdml, please cite the paper it implements and extends."
+title: "graphdml: double machine learning for causal effects on networks"
+authors:
+  - family-names: Dreyfuss
+    given-names: Sam
+license: MIT
+version: 0.1.0.dev0
+preferred-citation:
+  type: conference-paper
+  title: "Graph Machine Learning based Doubly Robust Estimator for Network Causal Effects"
+  authors:
+    - family-names: Khatami
+      given-names: Seyedeh Baharan
+    - family-names: Parikh
+      given-names: Harsh
+    - family-names: Chen
+      given-names: Haowei
+    - family-names: Roy
+      given-names: Sudeepa
+    - family-names: Salimi
+      given-names: Babak
+  collection-title: "Proceedings of The 28th International Conference on Artificial Intelligence and Statistics"
+  volume: 258
+  start: 4366
+  end: 4374
+  year: 2025
+  url: "https://proceedings.mlr.press/v258/khatami25a.html"

@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"   # weekly: catch breakage from new dependency releases
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uvx ruff check .
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python: "3.10"
+            deps: "minimum"
+          - python: "3.13"
+            deps: "latest"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: |
+          uv venv
+          if [ "${{ matrix.deps }}" = "minimum" ]; then
+            uv pip install --resolution lowest-direct -e ".[dev]"
+          else
+            uv pip install -e ".[dev]"
+          fi
+      - run: uv run --no-sync pytest
+
+  validation-gate:
+    # Monte Carlo coverage gate (VALIDATION.md); slower, so not on every push.
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv venv && uv pip install -e ".[dev]"
+      - run: uv run --no-sync pytest -m slow
+
+  neo4j-integration:
+    runs-on: ubuntu-latest
+    services:
+      neo4j:
+        image: neo4j:5.26-community
+        env:
+          NEO4J_AUTH: neo4j/graphdml-ci
+          NEO4J_PLUGINS: '["graph-data-science"]'
+        ports:
+          - 7687:7687
+        options: >-
+          --health-cmd "wget -qO- http://localhost:7474 || exit 1"
+          --health-interval 5s --health-timeout 5s --health-retries 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv venv && uv pip install -e ".[dev]"
+      - run: uv run --no-sync pytest tests/test_neo4j.py
+        env:
+          GRAPHDML_NEO4J_URI: bolt://localhost:7687
+          GRAPHDML_NEO4J_PASSWORD: graphdml-ci
