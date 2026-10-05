@@ -15,7 +15,7 @@ import scipy.sparse as sp
 from scipy.special import expit
 from sklearn.utils import check_random_state
 
-from graphdml.data import GraphData
+from graphdml.data import GraphData, drop_diagonal
 from graphdml.datasets._base import GraphDataset
 from graphdml.exposure import row_normalize
 
@@ -148,8 +148,7 @@ def make_paper_nonlinear(
 
 
 def _pattern(graph: Any) -> sp.csr_array:
-    A = sp.csr_array(graph, dtype=float, copy=True)
-    A.setdiag(0)
+    A = drop_diagonal(sp.csr_array(graph, dtype=float))
     A.eliminate_zeros()
     A.data = np.ones_like(A.data)
     return A

@@ -14,7 +14,7 @@ from typing import Any
 import numpy as np
 import scipy.sparse as sp
 
-from graphdml.data import GraphData
+from graphdml.data import GraphData, drop_diagonal
 
 __all__ = [
     "ExposureMap",
@@ -191,8 +191,7 @@ def two_hop_pattern(P: sp.csr_array) -> sp.csr_array:
     n = P.shape[0]
     P2 = sp.csr_array(P @ P)
     P2.data = np.ones_like(P2.data)
-    P2 = sp.csr_array(P2 - P2.multiply(P))  # drop direct neighbors
-    P2.setdiag(0)
+    P2 = drop_diagonal(P2 - P2.multiply(P))  # drop direct neighbors and self
     P2.eliminate_zeros()
     P2.data = np.ones_like(P2.data)
     P2.sort_indices()

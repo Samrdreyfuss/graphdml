@@ -71,7 +71,7 @@ class GraphData:
         A.sum_duplicates()
         if A.diagonal().any():
             warnings.warn("Dropping self-loops from adjacency.", GraphDMLWarning, stacklevel=3)
-            A.setdiag(0)
+            A = drop_diagonal(A)
         A.eliminate_zeros()
         A.sort_indices()
         if not self.directed:
@@ -274,6 +274,13 @@ class GraphData:
             f"GraphData(n_nodes={self.n_nodes}, n_edges={self.n_edges}, "
             f"n_features={self.n_features}, treatment={kind}, directed={self.directed})"
         )
+
+
+def drop_diagonal(M: Any) -> sp.csr_array:
+    """Remove diagonal entries without changing the sparsity structure in place."""
+    coo = sp.coo_array(M)
+    keep = coo.row != coo.col
+    return sp.csr_array((coo.data[keep], (coo.row[keep], coo.col[keep])), shape=coo.shape)
 
 
 def _as_vector(values: Any, n: int, name: str) -> np.ndarray:

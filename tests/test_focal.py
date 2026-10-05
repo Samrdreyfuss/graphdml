@@ -1,10 +1,19 @@
 import numpy as np
 import pytest
+import scipy.sparse as sp
 from scipy.sparse.csgraph import shortest_path
 
 from graphdml.exposure import MeanExposure, TwoHopExposure
 from graphdml.focal import dependency_matrix, is_independent, is_maximal, select_focal_set
 from graphdml.simulate import barabasi_albert, erdos_renyi, stochastic_block_model
+
+
+def _dist(A, focal):
+    # Older SciPy csgraph routines need 32-bit indices.
+    A32 = sp.csr_matrix((A.data, A.indices.astype(np.int32), A.indptr.astype(np.int32)),
+                        shape=A.shape)
+    return shortest_path(A32, unweighted=True, indices=focal)[:, focal]
+
 
 GRAPHS = {
     "er": lambda s: erdos_renyi(400, 4.0, random_state=s),
@@ -22,7 +31,7 @@ def test_one_hop_focal_set_is_distance_three_and_maximal(graph, strategy, seed):
     focal = select_focal_set(dep, strategy, random_state=seed)
     assert is_independent(dep, focal)
     assert is_maximal(dep, focal)
-    dist = shortest_path(A, unweighted=True, indices=focal)[:, focal]
+    dist = _dist(A, focal)
     np.fill_diagonal(dist, np.inf)
     assert dist.min() >= 3
 
@@ -35,7 +44,7 @@ def test_two_hop_dependency_requires_distance_five():
     E = [MeanExposure().matrix(data), TwoHopExposure().matrix(data)]
     dep = dependency_matrix(300, E)
     focal = select_focal_set(dep, random_state=0)
-    dist = shortest_path(A, unweighted=True, indices=focal)[:, focal]
+    dist = _dist(A, focal)
     np.fill_diagonal(dist, np.inf)
     assert dist.min() >= 5
     assert is_maximal(dep, focal)
