@@ -37,7 +37,7 @@ def one_seed(seed: int) -> list[dict]:
                                   method=method)
         pa = aggregate_dml(ds.data, ds.exposure, random_state=seed)
         rows += estimate_rows(pa, ds.truth, seed, dataset=name,
-                              method="1-hop aggregates, all nodes (paper's PA)")
+                              method="1-hop aggregates, all nodes")
     return rows
 
 

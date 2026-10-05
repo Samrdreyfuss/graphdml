@@ -1,4 +1,4 @@
-"""Pre-registered validation gates (see VALIDATION.md). Run with ``pytest -m slow``.
+"""Pre-registered validation gates (see docs/validation.md). Run with ``pytest -m slow``.
 
 Seeds are fixed, so results are deterministic for a given library version; a gate that
 starts failing after a change means the change altered the estimator's behaviour.
@@ -16,7 +16,7 @@ from graphdml.simulate import erdos_renyi, make_linear_gaussian, oracle_learners
 pytestmark = pytest.mark.slow
 
 SEEDS = range(300)
-# 0.95 +/- 3 Monte Carlo standard errors (VALIDATION.md, "Coverage criterion").
+# 0.95 +/- 3 Monte Carlo standard errors (docs/validation.md, "Coverage criterion").
 _MC_SE = np.sqrt(0.95 * 0.05 / len(SEEDS))
 BAND = (0.95 - 3 * _MC_SE, 0.95 + 3 * _MC_SE)
 

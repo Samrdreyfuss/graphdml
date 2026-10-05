@@ -1,6 +1,6 @@
 # Benchmarks
 
-Monte Carlo evidence for [VALIDATION.md](../VALIDATION.md). Each script runs seeds in
+Monte Carlo evidence for [the validation protocol](../docs/validation.md). Each script runs seeds in
 parallel (one thread per worker), writes per-seed rows to `results/<name>.csv` and a
 summary to `results/<name>.md`. `report.py` assembles `docs/validation-results.md`.
 

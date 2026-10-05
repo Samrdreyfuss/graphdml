@@ -47,8 +47,8 @@ if __name__ == "__main__":
     ds = load_insurance_experiment(args.data)
     d, ex = ds.data, ds.extras
     E = ex["exposure"]
-    agree = np.isclose(E(d), np.nan_to_num(ex["paper_exposure"], nan=-1))
-    peer_pop = ex["second_round"] & ex["info_none"] & ~np.isnan(ex["paper_exposure"])
+    agree = np.isclose(E(d), np.nan_to_num(ex["published_exposure"], nan=-1))
+    peer_pop = ex["second_round"] & ex["info_none"] & ~np.isnan(ex["published_exposure"])
     v = ex["natural_village"]
     rows = []
     rows += fit(d, v, "first round", exposure=None, estimation_nodes=~ex["second_round"])

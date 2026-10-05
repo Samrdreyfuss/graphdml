@@ -11,8 +11,9 @@ from __future__ import annotations
 import argparse
 import warnings
 
-from graphdml import GraphDML
+from graphdml import GraphDML, datasets
 from graphdml.exceptions import GraphDMLWarning
+from graphdml.io.neo4j import Neo4jGraphSource, Neo4jResultWriter, connect, write_dataset
 
 DATASETS = {
     # name: (factory, node label, relationship type)
@@ -25,9 +26,6 @@ DATASETS = {
 
 
 def main(argv: list[str] | None = None) -> None:
-    from graphdml import datasets
-    from graphdml.io.neo4j import Neo4jGraphSource, Neo4jResultWriter, connect, write_dataset
-
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--uri", default="bolt://localhost:7687")
     p.add_argument("--user", default="neo4j")

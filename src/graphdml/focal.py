@@ -4,8 +4,8 @@ Node ``i``'s score depends on the noise of node ``i`` and of every node in the s
 its exposure rows. Call that its *dependency set* ``S_i = {i} ∪ supp(E_i)``. If the
 dependency sets of two nodes are disjoint, their scores are independent given ``X``.
 A focal set is a maximal collection of nodes with pairwise-disjoint dependency sets. For
-the paper's 1-hop exposure on an undirected graph this is the set of nodes at pairwise
-graph distance >= 3, which matches the reference implementation's ``find_focal_set``.
+a one-hop exposure on an undirected graph this is a set of nodes at pairwise graph
+distance >= 3.
 """
 
 from __future__ import annotations
@@ -48,8 +48,8 @@ def select_focal_set(
     ----------
     strategy : {"min_degree", "random"}
         Order in which nodes are considered. ``"min_degree"`` (ties broken at random)
-        yields larger focal sets; ``"random"`` matches the reference implementation and
-        gives a focal set whose degree distribution is less skewed.
+        yields larger focal sets; ``"random"`` gives a focal set whose degree
+        distribution is less skewed.
 
     candidates : array of node positions, optional
         Only these nodes may be selected (e.g. the population the estimate is about).

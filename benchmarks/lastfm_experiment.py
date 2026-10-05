@@ -2,7 +2,7 @@
 
 The graph (7,624 users) and covariates are real; treatment and outcome are simulated
 anew in each replication, so the true effects are known (direct 2.0, peer 3.0). Compares
-GraphDML (default and paper mode) with methods that ignore the network.
+GraphDML (default and original procedure) with methods that ignore the network.
 
     python benchmarks/lastfm_experiment.py --seeds 100
 """
@@ -37,12 +37,13 @@ def one_seed(seed: int) -> list[dict]:
         "GraphDML (default)": GraphDML(exposure="mean", random_state=seed),
         "GraphDML (random-order focal set)": GraphDML(exposure="mean", focal_set="random",
                                                       random_state=seed),
-        "GraphDML (paper mode)": GraphDML(exposure="mean", mode="paper", random_state=seed),
+        "GraphDML (original procedure)": GraphDML(exposure="mean", mode="original",
+                                                  random_state=seed),
     }
     for method, m in models.items():
         rows += estimate_rows(m.fit(d), truth, seed, method=method)
     rows += estimate_rows(aggregate_dml(d, "mean", random_state=seed), truth, seed,
-                          method="DML + 1-hop aggregates, all nodes (PA)")
+                          method="DML + 1-hop aggregates, all nodes")
     rows += estimate_rows(iid_dml(d, random_state=seed), truth, seed,
                           method="DML, own covariates (i.i.d.)")
     rows += _ols_rows(naive_ols(d, "mean"), truth, seed, "OLS + exposure (no network)")

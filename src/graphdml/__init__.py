@@ -1,9 +1,8 @@
 """graphdml: double machine learning for causal effects on networks.
 
 Estimate the average direct effect of a node's own treatment and the average peer effect
-of its neighbors' treatments, with valid confidence intervals, following Khatami et al.,
-"Graph Machine Learning based Doubly Robust Estimator for Network Causal Effects"
-(AISTATS 2025).
+of its neighbors' treatments, with confidence intervals that account for network
+dependence.
 """
 
 from graphdml.data import GraphData

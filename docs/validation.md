@@ -4,11 +4,11 @@ Causal estimates are only useful if they are right, and a wrong number with a co
 interval is worse than no number. graphdml is validated in five layers. Each layer answers a
 different question, and each has a fixed pass criterion written down before the evidence is
 collected. Results for the current version are in
-[docs/validation-results.md](docs/validation-results.md).
+[validation-results.md](validation-results.md).
 
 | Layer | Question | Where |
 |---|---|---|
-| 1. Specification | Is the estimator precisely defined? | [docs/methodology.md](docs/methodology.md) |
+| 1. Specification | Is the estimator precisely defined? | [methodology.md](methodology.md) |
 | 2. Correctness | Does the code compute that estimator? | `pytest` (fast suite) |
 | 3. Statistical validity | Does it behave as the theory says? | `pytest -m slow`, `benchmarks/` |
 | 4. Realism | Does it hold up on realistic data? | story datasets; real-data benchmarks (planned) |
@@ -87,7 +87,7 @@ focal set is tiny.
 ## Layer 4: realism (in progress)
 
 * Story datasets with realistic structure: spatial, preferential attachment, communities.
-* Planned: semi-synthetic Cora/Pubmed (real topology, simulated outcomes, as in the paper), and
+* Planned: semi-synthetic Cora/Pubmed (real topology, simulated outcomes), and
   a benchmark against a randomized network experiment in which an observational subsample is
   analysed and compared with the experimental estimate.
 

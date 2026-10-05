@@ -6,6 +6,7 @@ biased, and the tutorials put them side by side with GraphDML.
 
 from __future__ import annotations
 
+import warnings
 from typing import Any
 
 import numpy as np
@@ -13,6 +14,7 @@ import pandas as pd
 
 from graphdml.data import GraphData
 from graphdml.estimator import GraphDML
+from graphdml.exceptions import GraphDMLWarning
 from graphdml.exposure import resolve_exposures
 from graphdml.features import NeighborhoodFeatures
 from graphdml.inference import normal_ci, ols_hc0
@@ -48,8 +50,7 @@ def iid_dml(data: GraphData, **kwargs: Any) -> GraphDML:
 def aggregate_dml(data: GraphData, exposure: Any = "sum", **kwargs: Any) -> GraphDML:
     """DML with predefined one-hop neighbor aggregates and no focal set.
 
-    This is the "PA" baseline of Khatami et al. (2025): it adjusts for neighbors'
-    covariates but treats all nodes as independent.
+    It adjusts for neighbors' covariates but treats all nodes as independent.
     """
     params = {
         "featurizer": NeighborhoodFeatures(aggs=("mean", "max", "min"), hops=1),
@@ -69,10 +70,6 @@ def compare_methods(
     estimator: GraphDML | None = None,
 ) -> pd.DataFrame:
     """Fit the baselines and GraphDML; return one tidy table (with truth if known)."""
-    import warnings
-
-    from graphdml.exceptions import GraphDMLWarning
-
     frames = {
         "Naive OLS (no network)": naive_ols(data, alpha=alpha),
         "OLS + exposure (no neighbor covariates)": naive_ols(data, exposure, alpha=alpha),

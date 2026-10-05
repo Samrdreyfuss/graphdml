@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import html
+import textwrap
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -140,6 +141,4 @@ def _dots(label: str, value: str, width: int = 50) -> str:
 
 
 def _wrap(text: str, indent: str = "  ", hang: str = "    ") -> str:
-    import textwrap
-
     return textwrap.fill(text, width=_WIDTH, initial_indent=indent, subsequent_indent=hang)

@@ -15,7 +15,7 @@ from graphdml.data import GraphData
 from graphdml.datasets._base import GraphDataset, load_descr
 from graphdml.datasets._fetch import fetch_lastfm_asia
 from graphdml.exposure import row_normalize
-from graphdml.features import _aggregate
+from graphdml.features import aggregate_neighbors
 
 __all__ = ["lastfm_covariates", "make_lastfm_promo"]
 
@@ -68,7 +68,7 @@ def make_lastfm_promo(
     M = row_normalize(P)
     a, s1, s2, s3 = X[:, 0], X[:, 1], X[:, 2], X[:, 3]
     nbr_s1, nbr_a = M @ s1, M @ a
-    max_s2 = _aggregate(P, M, s2[:, None], "max").ravel()
+    max_s2 = aggregate_neighbors(P, s2[:, None], "max").ravel()
 
     logit = -0.3 + 0.6 * s1 + 0.4 * a + 0.3 * s2 * s3 + confounding * (0.8 * nbr_s1 + 0.4 * nbr_a)
     T = rng.binomial(1, expit(logit)).astype(float)

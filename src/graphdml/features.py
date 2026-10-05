@@ -23,6 +23,7 @@ __all__ = [
     "NeighborhoodFeatures",
     "OwnFeatures",
     "PrecomputedFeatures",
+    "aggregate_neighbors",
     "resolve_featurizer",
 ]
 
@@ -77,7 +78,9 @@ class NeighborhoodFeatures(BaseEstimator):
             level_names = [f"{agg}_nbr({c})" for agg in self.aggs for c in data.feature_names]
             names += level_names
             if not names_only:
-                level = np.hstack([_aggregate(P, P_mean, data.X, agg) for agg in self.aggs])
+                level = np.hstack(
+                    [aggregate_neighbors(P, data.X, agg, P_mean) for agg in self.aggs]
+                )
                 blocks.append(level)
             for _ in range(2, self.hops + 1):
                 level_names = [f"mean_nbr({c})" for c in level_names]
@@ -141,8 +144,17 @@ def resolve_featurizer(spec: Any) -> Any:
     return spec
 
 
-def _aggregate(P: sp.csr_array, P_mean: sp.csr_array, X: np.ndarray, agg: str) -> np.ndarray:
+def aggregate_neighbors(
+    P: sp.csr_array, X: np.ndarray, agg: str, P_mean: sp.csr_array | None = None
+) -> np.ndarray:
+    """Aggregate each node's in-neighbors' rows of ``X`` ("mean", "sum", "max" or "min").
+
+    ``P`` is the binary adjacency; nodes without neighbors get 0. ``P_mean`` (the
+    row-normalised ``P``) can be passed to avoid recomputing it.
+    """
     if agg == "mean":
+        if P_mean is None:
+            P_mean = row_normalize(P)
         return P_mean @ X
     if agg == "sum":
         return P @ X

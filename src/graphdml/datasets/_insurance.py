@@ -2,7 +2,7 @@
 
 Rice farmers in rural China were randomly assigned to simple or intensive information
 sessions about weather insurance, in two rounds three days apart. Each household named up
-to five friends. The paper finds that intensive sessions raise one's own take-up (direct
+to five friends. The study finds that intensive sessions raise one's own take-up (direct
 effect) and that second-round farmers are more likely to buy when more of their friends
 attended a first-round intensive session (peer effect).
 
@@ -32,7 +32,7 @@ CITATION = (
     "project 113593, https://doi.org/10.3886/E113593V1 (CC BY 4.0)."
 )
 
-#: Estimates reported in the paper's Table 2 (OLS with village fixed effects, SEs
+#: Estimates reported in the study's Table 2 (OLS with village fixed effects, SEs
 #: clustered by natural village).
 PUBLISHED = {
     "ade_first_round": {"coef": 0.1408, "std_err": 0.0260, "n": 2137},
@@ -53,12 +53,12 @@ def load_insurance_experiment(data_dir: str | os.PathLike) -> GraphDataset:
     * Covariates: household characteristics (median-imputed, with missing indicators),
       the randomized design variables (second round, information treatments), the number
       of friends named, and administrative-village dummies.
-    * ``extras["exposure"]``: the paper's peer exposure, the share of named friends who
+    * ``extras["exposure"]``: the study's peer exposure, the share of named friends who
       attended a *first-round intensive* session (the denominator counts every named
-      friend, surveyed or not, as in the paper). It is linear in ``T``, so it is given as
+      friend, surveyed or not, as in the study). It is linear in ``T``, so it is given as
       a :class:`~graphdml.MatrixExposure`.
     * ``extras`` also has ``second_round``, ``info_none``, ``natural_village`` (for
-      clustered SEs), the paper's own exposure variable for checking, and the published
+      clustered SEs), the study's own exposure variable for checking, and the published
       estimates.
     """
     data_dir = Path(data_dir).expanduser()
@@ -70,10 +70,10 @@ def load_insurance_experiment(data_dir: str | os.PathLike) -> GraphDataset:
     n = len(survey)
     pos = pd.Series(np.arange(n), index=survey["id"].astype(int))
 
-    # Paper's exposure, computed exactly as in rawnet.do (for checking our operator).
+    # The study's exposure, computed exactly as in rawnet.do (for checking our operator).
     n_named = noms.groupby("id").size()
     first_int = ((noms["delay"] == 0) & (noms["intensive"] == 1)).groupby(noms["id"]).sum()
-    paper_rate = (first_int / n_named).reindex(survey["id"]).to_numpy()
+    published_rate = (first_int / n_named).reindex(survey["id"]).to_numpy()
 
     inside = noms[noms["network_id"].isin(pos.index) & noms["id"].isin(pos.index)]
     rows = pos[inside["id"].astype(int)].to_numpy()  # nominator i (influenced)
@@ -139,7 +139,7 @@ def load_insurance_experiment(data_dir: str | os.PathLike) -> GraphDataset:
             "second_round": ~first_round,
             "info_none": (survey["info_none"] == 1).to_numpy(),
             "natural_village": survey["address"].to_numpy(),
-            "paper_exposure": paper_rate,
+            "published_exposure": published_rate,
             "published": PUBLISHED,
             "citation": CITATION,
         },

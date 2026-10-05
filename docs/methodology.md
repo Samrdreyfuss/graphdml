@@ -1,9 +1,8 @@
 # Methodology
 
-This document specifies exactly what `GraphDML.fit` computes. Every test in `tests/` checks
-a statement made here. The method follows Khatami, Parikh, Chen, Roy and Salimi, *Graph
-Machine Learning based Doubly Robust Estimator for Network Causal Effects* (AISTATS 2025),
-with the changes listed in [deviations.md](deviations.md).
+This document specifies exactly what `GraphDML.fit` computes; the tests in `tests/` check
+the statements made here. The approach builds on Khatami et al. (AISTATS 2025); defaults
+that differ from their procedure are listed, with evidence, in [design.md](design.md).
 
 ## 1. Setup
 
@@ -28,7 +27,7 @@ $$
 * $\theta_0$ is the **average direct effect** (ADE) and $\alpha_0$ the **average peer
   effect** (APE). Several exposures give one $\alpha$ per exposure.
 
-**Assumptions** (paper A.1–A.6). (A.1) Noise terms are independent across nodes given
+**Assumptions.** (A.1) Noise terms are independent across nodes given
 covariates. (A.2) Interference is confined to the exposure neighborhood. (A.3) The exposure
 map is correct. (A.4) Positivity of treatment and exposure. (A.5) Consistency. (A.6) No
 unobserved confounding given $X$ and $A$. A.2, A.3 and A.6 cannot be verified from data;
@@ -53,7 +52,7 @@ The **peer residual** is the exposure map applied to *all nodes'* treatment resi
 $E(T - m_0)$. In particular it needs treatment-model predictions at a focal node's
 neighbors, which are usually not focal themselves (section 6).
 
-**Two-hop dependence of $\ell_0$ (question 1c).** $\ell_0 = \theta_0 m_0 + \alpha_0 E m_0 +
+**Two-hop dependence of $\ell_0$.** $\ell_0 = \theta_0 m_0 + \alpha_0 E m_0 +
 g_0$. Even with one-hop interference and one-hop confounding, $E m_0$ depends on
 covariates two hops away. The default featurizer therefore includes two-hop aggregates.
 
@@ -64,10 +63,10 @@ Every score is linear in $\zeta = (\theta, \alpha)$: $\psi_i(\zeta) = R_i\,(y_i 
 
 | score | $D_i$ | $y_i$ | consistent if |
 |---|---|---|---|
-| `partialling-out` (paper eq. 13) | $R_i$ | $Y_i - \hat\ell_i$ | $\hat m$ correct |
+| `partialling-out` | $R_i$ | $Y_i - \hat\ell_i$ | $\hat m$ correct |
 | `iv-type` (default) | $(T_i, Z_i)$ | $Y_i - \hat g_i$ | $\hat m$ **or** $\hat g$ correct |
 
-**Question 1b: robustness of the paper's score.** Write $V = T - m_0$ and suppose the
+**Robustness to nuisance errors.** Write $V = T - m_0$ and suppose the
 treatment model is off by $\delta = m_0 - \hat m$ while $\hat\ell = \ell_0$ is exact. With a
 single regressor, the partialling-out estimate converges to
 
@@ -78,9 +77,9 @@ $$
 an attenuation toward zero (the cross terms vanish because $\delta$ is a function of
 covariates and $\mathbb{E}[V \mid X] = 0$). If instead $\hat m = m_0$ and $\hat \ell$ is
 wrong, $\mathbb{E}[(\ell_0 - \hat\ell) V] = 0$ and the estimate is consistent. So the
-partialling-out score is robust to the outcome model but **not** to the treatment model, and
-the paper's description of the estimator as doubly robust holds only in the weaker, rate
-sense of Neyman orthogonality. The IV-type score uses $D = (T, Z)$ and
+partialling-out score is robust to the outcome model but **not** to the treatment model; it
+is Neyman-orthogonal, so the bias is second order, but it is not doubly robust in the
+classical sense. The IV-type score uses $D = (T, Z)$ and
 $\hat g = $ a regression of $Y - \tilde\theta T - \tilde\alpha Z$ on features (with
 $\tilde\zeta$ a preliminary partialling-out estimate, as in DoubleML). It is consistent if
 either $\hat m$ or $\hat g$ is correct. `tests/test_robustness.py` checks all four cases
@@ -102,13 +101,12 @@ greedily (`select_focal_set`): visit nodes in some order and accept a node if it
 set touches no accepted node's set.
 
 * For a one-hop exposure on an undirected graph, this means pairwise graph distance at
-  least 3. That matches the reference implementation's `find_focal_set`. The paper's
-  Definition 3.1 ($N_u \cap N_v = \emptyset$ with open neighborhoods) is looser, since it
-  admits adjacent nodes with no common neighbor, whose scores share noise.
+  least 3. Requiring only *open* neighborhoods to be disjoint would not be enough: two
+  adjacent nodes with no common neighbor would qualify, yet their scores share noise.
 * With an added two-hop exposure (`two_hop_test`) the requirement becomes distance at least 5.
 * For directed graphs, dependency sets follow in-neighbors.
 * Order: `"min_degree"` (default) visits low-degree nodes first and yields larger focal
-  sets. `"random"` (the reference code) gives a less degree-skewed set.
+  sets. `"random"` gives a less degree-skewed set.
 
 The focal set size $n_f$ is the **effective sample size**: standard errors shrink like
 $1/\sqrt{n_f}$, not $1/\sqrt{n}$.
@@ -120,7 +118,7 @@ nodes $I_k$:
 
 1. $U_k = \bigcup_{i \in I_k} S_i$ is the set of nodes whose noise enters the held-out scores.
 2. Training sets:
-   * `nuisance_training="focal"` (paper): the focal nodes of the other folds.
+   * `nuisance_training="focal"`: the focal nodes of the other folds.
    * `nuisance_training="buffered"` (default): the treatment model trains on every node
      outside $U_k$; the outcome model trains on every node $u$ with $S_u \cap U_k =
      \emptyset$. Both training sets are independent of the held-out scores, as
@@ -130,10 +128,10 @@ nodes $I_k$:
    neighbors). This gives $\hat V = T - \hat m$ on $U_k$ and the peer residual
    $[E \hat V]_i$ for $i \in I_k$. Because dependency sets of focal nodes are disjoint, each
    non-focal neighbor belongs to exactly one held-out fold, and its prediction comes from a
-   model that never saw it (**question 1a**).
+   model that never saw it.
 4. The outcome model predicts $\hat\ell_i$ (or $\hat g_i$ for IV-type) for $i \in I_k$.
 
-**Why buffered training matters (1a, confirmed).** Training only on focal nodes uses less
+**Why buffered training matters.** Training only on focal nodes uses less
 data. It also creates a covariate shift: focal nodes skew toward low degree, but the treatment
 model must predict at their (higher-degree) neighbors. Errors in $\hat m$ at neighbors
 attenuate the peer effect (section 4). In benchmarks, focal-only training undercovers
@@ -152,8 +150,8 @@ Binary treatments use a classifier's `predict_proba`, clipped to `[0.01, 0.99]`.
 ## 8. Final stage and inference
 
 * `aggregation="dml2"` (default) solves the pooled moment $\sum_i \psi_i(\zeta) = 0$ over all
-  focal nodes. `"dml1"` (paper) averages per-fold solutions.
-* Variance (Theorem 4.1): $\hat\Sigma = \hat J^{-1} \hat\Omega \hat J^{-\top} / n_f$ with
+  focal nodes. `"dml1"` averages per-fold solutions.
+* Variance: $\hat\Sigma = \hat J^{-1} \hat\Omega \hat J^{-\top} / n_f$ with
   $\hat J = \frac{1}{n_f}\sum_i R_i D_i^\top$ and $\hat\Omega = \frac{1}{n_f}\sum_i \hat u_i^2
   R_i R_i^\top$. For partialling-out this is exactly the HC0 covariance of the OLS of
   $Y - \hat\ell$ on the residuals (tested against statsmodels).
@@ -174,9 +172,9 @@ nodes. Falsification tests (`graphdml.diagnostics`):
   (tests for unobserved confounding such as homophily).
 * `two_hop_test`: adds a two-hop exposure; a non-zero coefficient contradicts A.2.
 
-## 10. Paper mode
+## 10. Original procedure
 
-`GraphDML(mode="paper")` reproduces the published procedure: random-order focal set,
+`GraphDML(mode="original")` reproduces the original GDML procedure: random-order focal set,
 focal-only nuisance training, partialling-out score, DML1, $K = 3$, and own plus summed-neighbor
 features (the inputs of a one-layer GIN). The nuisance learners are whatever you pass; a
 GIN learner arrives with the `[gnn]` extra.

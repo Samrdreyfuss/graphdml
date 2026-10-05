@@ -49,10 +49,12 @@ dev = [
 
 [project.urls]
 Homepage = "https://github.com/Samrdreyfuss/graphdml"
-Paper = "https://proceedings.mlr.press/v258/khatami25a.html"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/graphdml"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["benchmarks/results/*.csv", ".github"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

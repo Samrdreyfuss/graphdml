@@ -15,7 +15,7 @@ from graphdml.focal import dependency_matrix, select_focal_set
 from graphdml.inference import ols_hc0
 from graphdml.simulate import erdos_renyi, make_linear_gaussian, oracle_learners
 
-from .conftest import linear_learners
+from .helpers import linear_learners
 
 
 # ---------------------------------------------------------------- final stage & variance
@@ -199,8 +199,8 @@ def test_iid_mode_warns(linear_ds):
         GraphDML(**linear_learners(), focal_set=None, random_state=0).fit(linear_ds.data)
 
 
-def test_paper_mode_settings(linear_ds):
-    m = GraphDML(LinearRegression(), LinearRegression(), mode="paper", random_state=0)
+def test_original_mode_settings(linear_ds):
+    m = GraphDML(LinearRegression(), LinearRegression(), mode="original", random_state=0)
     m.fit(linear_ds.data)
     s = m.settings_
     assert (s["focal_set"], s["nuisance_training"], s["aggregation"], s["n_folds"]) == (

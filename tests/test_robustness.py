@@ -1,4 +1,4 @@
-"""Question 1b: which nuisance can be wrong without biasing each score?
+"""Which nuisance can be wrong without biasing each score?
 
 Derivation (docs/methodology.md, section 4): the partialling-out score stays consistent
 when the treatment model is right and the outcome model is wrong, but is attenuated by

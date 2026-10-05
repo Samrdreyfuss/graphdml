@@ -42,7 +42,7 @@ jobs:
       - run: python -m pytest
 
   validation-gate:
-    # Monte Carlo coverage gate (VALIDATION.md); slower, so not on every push.
+    # Monte Carlo coverage gate (docs/validation.md); slower, so not on every push.
     if: github.event_name != 'push'
     runs-on: ubuntu-latest
     steps:

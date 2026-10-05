@@ -23,6 +23,7 @@ import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator
 
+from graphdml import __version__
 from graphdml.data import GraphData
 from graphdml.features import NeighborhoodFeatures
 
@@ -255,7 +256,7 @@ class Neo4jResultWriter(_Client):
             "name": run_name,
             "description": description,
             "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
-            "graphdml_version": _version(),
+            "graphdml_version": __version__,
             "n_nodes": int(model.n_nodes_),
             "n_focal": int(model.n_focal_),
             "settings": json.dumps(_jsonable(model.get_params(deep=False))),
@@ -455,8 +456,3 @@ def _jsonable(params: dict[str, Any]) -> dict[str, Any]:
         out[k] = v if isinstance(v, str | int | float | bool | type(None)) else repr(v)
     return out
 
-
-def _version() -> str:
-    from graphdml import __version__
-
-    return __version__

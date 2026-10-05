@@ -4,11 +4,11 @@ All GraphDML scores have the form ``psi_i(zeta) = R_i * (y_i - D_i' zeta)`` wher
 are residualised regressors ("instruments"), ``D_i`` the regressors and ``y_i`` the
 (possibly residualised) outcome:
 
-* partialling-out: ``R = D = [res_T, res_Z...]``, ``y = res_Y``  (paper eq. 13)
+* partialling-out: ``R = D = [res_T, res_Z...]``, ``y = res_Y``
 * IV-type:         ``R = [res_T, res_Z...]``, ``D = [T, Z...]``, ``y = Y - g_hat``
 
 The sandwich covariance ``J^{-1} Omega J^{-T} / n`` with ``J = R'D / n`` and
-``Omega = sum_i u_i^2 R_i R_i' / n`` is Theorem 4.1 of Khatami et al. (2025). For
+``Omega = sum_i u_i^2 R_i R_i' / n`` is the standard DML sandwich. For
 partialling-out it equals the HC0 covariance of the OLS of ``res_Y`` on the residuals.
 """
 

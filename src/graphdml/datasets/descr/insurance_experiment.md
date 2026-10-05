@@ -23,11 +23,11 @@ households: **0.141** (SE 0.026). Peer effect for second-round households withou
 information: **0.291** (SE 0.082) going from 0% to 100% of friends in first-round intensive
 sessions.
 
-**Exposure coding.** The paper's exposure counts every named friend in the denominator, and
+**Exposure coding.** The study's exposure counts every named friend in the denominator, and
 in the numerator counts friends recorded as first-round intensive participants. That
 includes 271 nominations of friends who are not among the surveyed households. Those friends
 are not nodes here, so the loader's exposure counts surveyed friends only. The two agree for
-97% of households; `extras["paper_exposure"]` holds the paper's variable for comparison.
+97% of households; `extras["published_exposure"]` holds the study's variable for comparison.
 
 **What to try.**
 
@@ -47,4 +47,4 @@ print(m.cluster_summary_frame(ex["natural_village"]))     # SEs clustered by vil
 
 Treatment was randomized, so the propensity model is correct by design and both scores are
 consistent. Clustered standard errors allow for village-level common shocks, as in the
-paper.
+original study.

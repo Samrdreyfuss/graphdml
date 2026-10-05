@@ -1,8 +1,8 @@
 """Layer 3 gate: do 95% intervals cover at the nominal rate?
 
 Runs GraphDML on the linear DGP across topologies with (a) oracle nuisances and (b)
-correctly specified linear nuisances, and on the paper's binary-treatment DGP with oracle
-nuisances. Pass criterion (VALIDATION.md): coverage within 0.95 ± 3 Monte Carlo standard
+correctly specified linear nuisances, and on the binary-treatment benchmark DGP with oracle
+nuisances. Pass criterion (docs/validation.md): coverage within 0.95 ± 3 Monte Carlo standard
 errors in every row.
 
     python benchmarks/coverage.py --seeds 300
@@ -20,8 +20,8 @@ from graphdml import GraphDML, NeighborhoodFeatures
 from graphdml.simulate import (
     barabasi_albert,
     erdos_renyi,
+    make_benchmark_linear,
     make_linear_gaussian,
-    make_paper_linear,
     oracle_learners,
     stochastic_block_model,
 )
@@ -35,9 +35,9 @@ GRAPHS = {
 
 
 LINEAR = "linear, continuous T"
-PAPER = "paper eq. 38, binary T"
+BENCH = "benchmark linear, binary T"
 CELLS = [(g, d, nz) for g in GRAPHS for d, nz in
-         [(LINEAR, "oracle"), (LINEAR, "linear (correct)"), (PAPER, "oracle")]]
+         [(LINEAR, "oracle"), (LINEAR, "linear (correct)"), (BENCH, "oracle")]]
 
 
 def one_seed(seed: int, cells=None) -> list[dict]:
@@ -48,7 +48,7 @@ def one_seed(seed: int, cells=None) -> list[dict]:
             ds = make_linear_gaussian(A, theta=1.0, alpha=0.5, random_state=seed)
             exposure = "mean"
         else:
-            ds = make_paper_linear(A, noise_sd=1.0, random_state=seed)
+            ds = make_benchmark_linear(A, noise_sd=1.0, random_state=seed)
             exposure = "sum"
         if nuisances == "oracle":
             m = GraphDML(**oracle_learners(ds), exposure=exposure, random_state=seed)

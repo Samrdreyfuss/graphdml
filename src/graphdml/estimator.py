@@ -23,14 +23,15 @@ from graphdml.features import NeighborhoodFeatures, resolve_featurizer
 from graphdml.focal import dependency_matrix, is_independent, select_focal_set
 from graphdml.inference import aggregate_repetitions, normal_ci, sandwich_cov, solve_moment
 from graphdml.learners import default_classifier, default_regressor
+from graphdml.results import Summary, format_summary
 
 __all__ = ["GraphDML"]
 
 _MAX_SEED = np.iinfo(np.int32).max
 _MIN_TRAIN = 20
 
-#: Settings that reproduce the procedure of Khatami et al. (2025) and its reference code.
-PAPER_SETTINGS: dict[str, Any] = {
+#: Settings that reproduce the original GDML procedure (``mode="original"``).
+ORIGINAL_SETTINGS: dict[str, Any] = {
     "focal_set": "random",
     "nuisance_training": "focal",
     "aggregation": "dml1",
@@ -63,7 +64,7 @@ class GraphDML(BaseEstimator):
     """Direct and peer effects on a network via graph double machine learning.
 
     Estimates ``theta`` (average direct effect) and ``alpha`` (average peer effect) in the
-    partially linear network model of Khatami et al. (AISTATS 2025)::
+    partially linear network model::
 
         T = m(X, A) + e_T
         Y = theta * T + alpha * (E @ T) + g(X, A) + e_Y
@@ -91,14 +92,14 @@ class GraphDML(BaseEstimator):
     score : {"iv-type", "partialling-out"}, default="iv-type"
         "iv-type" stays consistent if either the treatment model or the outcome-confounding
         model ``g`` is right, and had lower bias in 7 of 8 benchmark cells.
-        "partialling-out" is the paper's score; it is attenuated toward zero when the
+        "partialling-out" is the original score; it is attenuated toward zero when the
         treatment model is wrong (see ``docs/methodology.md``).
     focal_set : {"min_degree", "random"}, array-like or None, default="min_degree"
         How to choose the focal set of nodes with independent scores. An array gives the
         focal nodes explicitly (validated). ``None`` uses every node and treats them as
         independent; intervals are then not valid under interference.
     nuisance_training : {"buffered", "focal"}, default="buffered"
-        Which nodes train the nuisance models for each fold. "focal" (the paper) trains on
+        Which nodes train the nuisance models for each fold. "focal" trains on
         the other folds' focal nodes only. "buffered" trains on every node whose data is
         independent of the held-out fold's scores, which is typically several times more
         data.
@@ -107,12 +108,13 @@ class GraphDML(BaseEstimator):
         Repetitions of cross-fitting (with new focal sets and folds). Estimates are
         aggregated by the median, with the variance adjusted for split-to-split spread.
     aggregation : {"dml2", "dml1"}, default="dml2"
-        "dml2" solves the pooled moment condition; "dml1" (the paper) averages per-fold
+        "dml2" solves the pooled moment condition; "dml1" averages per-fold
         estimates.
     clip_propensity : float, default=0.01
         Clip classifier propensities to ``[c, 1 - c]``.
-    mode : {None, "paper"}, default=None
-        ``"paper"`` overrides the settings above to reproduce the published procedure.
+    mode : {None, "original"}, default=None
+        ``"original"`` overrides the settings above with the original GDML procedure
+        (see ``docs/design.md``), for comparison and replication.
     estimation_nodes : array of node positions or boolean mask, optional
         Restrict the estimate to a sub-population: only these nodes can be focal. All nodes
         still supply neighbors' treatments and nuisance training data.
@@ -347,13 +349,13 @@ class GraphDML(BaseEstimator):
             "aggregation": self.aggregation,
             "featurizer": self.featurizer,
         }
-        if self.mode == "paper":
-            s.update(PAPER_SETTINGS)
+        if self.mode == "original":
+            s.update(ORIGINAL_SETTINGS)
             if self.featurizer is None:
-                # The paper's nuisance model is a one-layer GIN: own + summed neighbor features.
+                # The original nuisance model is a one-layer GIN: own + summed neighbor features.
                 s["featurizer"] = NeighborhoodFeatures(aggs=("sum",), hops=1, include_degree=False)
         elif self.mode is not None:
-            raise ValueError(f"mode must be None or 'paper', got {self.mode!r}.")
+            raise ValueError(f"mode must be None or 'original', got {self.mode!r}.")
         if s["score"] not in ("partialling-out", "iv-type"):
             raise ValueError("score must be 'partialling-out' or 'iv-type'.")
         if s["nuisance_training"] not in ("buffered", "focal"):
@@ -425,10 +427,8 @@ class GraphDML(BaseEstimator):
     def conf_int(self, alpha: float = 0.05) -> pd.DataFrame:
         return self.summary_frame(alpha)[["ci_lower", "ci_upper"]]
 
-    def summary(self, alpha: float = 0.05):
+    def summary(self, alpha: float = 0.05) -> Summary:
         """Human-readable results, diagnostics, warnings and identifying assumptions."""
-        from graphdml.results import format_summary
-
         self._check_fitted()
         return format_summary(self, alpha)
 

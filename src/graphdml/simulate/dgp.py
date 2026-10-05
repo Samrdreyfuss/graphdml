@@ -19,7 +19,7 @@ from graphdml.data import GraphData, drop_diagonal
 from graphdml.datasets._base import GraphDataset
 from graphdml.exposure import row_normalize
 
-__all__ = ["make_linear_gaussian", "make_paper_linear", "make_paper_nonlinear"]
+__all__ = ["make_benchmark_linear", "make_benchmark_nonlinear", "make_linear_gaussian"]
 
 
 def make_linear_gaussian(
@@ -77,7 +77,7 @@ def make_linear_gaussian(
     )
 
 
-def make_paper_linear(
+def make_benchmark_linear(
     graph: Any,
     *,
     theta: float = 10.0,
@@ -86,11 +86,11 @@ def make_paper_linear(
     noise_sd: float = 0.0,
     random_state: Any = None,
 ) -> GraphDataset:
-    """The linear DGP of Khatami et al. (2025), eq. 38, as in the reference code.
+    """Linear benchmark DGP with a binary treatment (Khatami et al., 2025, eq. 38).
 
     ``X ~ N(0, 1)``, ``pi = expit((X + gamma A X) / 10)``, ``T ~ Bernoulli(pi)``,
     ``Y = theta T + alpha A T + X + A X (+ noise)`` with ``A`` the binary adjacency and the
-    sum exposure. The reference code uses ``gamma = 0.25`` and no outcome noise.
+    sum exposure. Defaults: ``gamma = 0.25``, no outcome noise.
     """
     rng = check_random_state(random_state)
     A = _pattern(graph)
@@ -103,16 +103,16 @@ def make_paper_linear(
     Y = theta * T + alpha * (A @ T) + g + noise_sd * rng.standard_normal(n)
     ell = theta * pi + alpha * (A @ pi) + g
     return GraphDataset(
-        name="paper_linear",
+        name="benchmark_linear",
         data=GraphData(X[:, None], T, Y, A),
         truth={"ade": theta, "ape": alpha},
         exposure="sum",
-        DESCR=make_paper_linear.__doc__ or "",
+        DESCR=make_benchmark_linear.__doc__ or "",
         extras={"m": pi, "ell": ell, "g": g},
     )
 
 
-def make_paper_nonlinear(
+def make_benchmark_nonlinear(
     graph: Any,
     *,
     theta: float = 20.0,
@@ -121,11 +121,10 @@ def make_paper_nonlinear(
     noise_sd: float = 0.0,
     random_state: Any = None,
 ) -> GraphDataset:
-    """The nonlinear DGP of Khatami et al. (2025), eq. 39, with a true neighbor maximum.
+    """Nonlinear benchmark DGP (Khatami et al., 2025, eq. 39).
 
     ``pi = expit((X + gamma max_{j in N(i)} X_j) / 10)``,
-    ``Y = sigmoid(X + max_{j in N(i)} X_j) + theta T + alpha A T``, implemented as written
-    in the paper.
+    ``Y = sigmoid(X + max_{j in N(i)} X_j) + theta T + alpha A T``.
     """
     rng = check_random_state(random_state)
     A = _pattern(graph)
@@ -138,11 +137,11 @@ def make_paper_nonlinear(
     Y = theta * T + alpha * (A @ T) + g + noise_sd * rng.standard_normal(n)
     ell = theta * pi + alpha * (A @ pi) + g
     return GraphDataset(
-        name="paper_nonlinear",
+        name="benchmark_nonlinear",
         data=GraphData(X[:, None], T, Y, A),
         truth={"ade": theta, "ape": alpha},
         exposure="sum",
-        DESCR=make_paper_nonlinear.__doc__ or "",
+        DESCR=make_benchmark_nonlinear.__doc__ or "",
         extras={"m": pi, "ell": ell, "g": g},
     )
 

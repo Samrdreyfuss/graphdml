@@ -2,8 +2,8 @@
 
 GraphDML supports *linear* exposure maps ``Z = E @ T`` for a sparse ``(n, n)`` operator
 ``E``. Linearity is what lets the peer residual be computed as ``E @ (T - m_hat)``
-(see ``docs/methodology.md``). The exposure map is an identifying assumption (A.3 in
-Khatami et al., 2025): it must be chosen from domain knowledge, not learned from data.
+(see ``docs/methodology.md``). The exposure map is an identifying assumption: it must be
+chosen from domain knowledge, not learned from data.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ class ExposureMap:
 
 
 class SumExposure(ExposureMap):
-    """``Z_i = sum of in-neighbors' treatments`` (the paper's default, ``Z = A T``)."""
+    """``Z_i = sum of in-neighbors' treatments`` (``Z = A T``)."""
 
     name = "sum"
 

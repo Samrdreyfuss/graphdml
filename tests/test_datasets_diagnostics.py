@@ -22,7 +22,7 @@ from graphdml.exposure import TwoHopExposure
 from graphdml.focal import dependency_matrix, is_independent, select_focal_set
 from graphdml.simulate import erdos_renyi, make_linear_gaussian
 
-from .conftest import linear_learners
+from .helpers import linear_learners
 
 MAKERS = [make_flu_town, make_referral_app, make_classroom_tutoring, make_homophily_trap]
 
@@ -131,7 +131,7 @@ def test_insurance_experiment_if_available():
     ds = load_insurance_experiment(path)
     d, ex = ds.data, ds.extras
     assert d.n_nodes == 4902 and d.directed
-    pr = ex["paper_exposure"]
+    pr = ex["published_exposure"]
     ok = ~np.isnan(pr)
     assert np.mean(np.isclose(ex["exposure"](d)[ok], pr[ok])) > 0.95
     m = GraphDML(exposure=None, estimation_nodes=~ex["second_round"], random_state=0).fit(d)

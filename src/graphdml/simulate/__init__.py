@@ -1,6 +1,10 @@
 """Graph generators, data-generating processes with known truth, and oracle nuisances."""
 
-from graphdml.simulate.dgp import make_linear_gaussian, make_paper_linear, make_paper_nonlinear
+from graphdml.simulate.dgp import (
+    make_benchmark_linear,
+    make_benchmark_nonlinear,
+    make_linear_gaussian,
+)
 from graphdml.simulate.graphs import (
     barabasi_albert,
     edges_to_adjacency,
@@ -17,9 +21,9 @@ __all__ = [
     "edges_to_adjacency",
     "erdos_renyi",
     "geometric_graph",
+    "make_benchmark_linear",
+    "make_benchmark_nonlinear",
     "make_linear_gaussian",
-    "make_paper_linear",
-    "make_paper_nonlinear",
     "oracle_learners",
     "random_geometric",
     "stochastic_block_model",
