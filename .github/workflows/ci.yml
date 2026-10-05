@@ -32,14 +32,14 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Install
+        # setup-uv creates and activates .venv when python-version is set
         run: |
-          uv venv
           if [ "${{ matrix.deps }}" = "minimum" ]; then
             uv pip install --resolution lowest-direct -e ".[dev]"
           else
             uv pip install -e ".[dev]"
           fi
-      - run: uv run --no-sync pytest
+      - run: python -m pytest
 
   validation-gate:
     # Monte Carlo coverage gate (VALIDATION.md); slower, so not on every push.
@@ -50,8 +50,8 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
-      - run: uv venv && uv pip install -e ".[dev]"
-      - run: uv run --no-sync pytest -m slow
+      - run: uv pip install -e ".[dev]"
+      - run: python -m pytest -m slow
 
   neo4j-integration:
     runs-on: ubuntu-latest
@@ -71,8 +71,8 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
-      - run: uv venv && uv pip install -e ".[dev]"
-      - run: uv run --no-sync pytest tests/test_neo4j.py
+      - run: uv pip install -e ".[dev]"
+      - run: python -m pytest tests/test_neo4j.py
         env:
           GRAPHDML_NEO4J_URI: bolt://localhost:7687
           GRAPHDML_NEO4J_PASSWORD: graphdml-ci
