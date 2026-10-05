@@ -36,9 +36,8 @@ scikit-learn model. θ is the average direct effect and α the average peer effe
 
 ## Install
 
-From a clone of this repository:
-
 ```bash
+git clone https://github.com/Samrdreyfuss/graphdml && cd graphdml
 pip install -e .            # core: numpy, scipy, pandas, scikit-learn
 pip install -e ".[dev]"     # + tests, benchmarks, validation tools
 ```
