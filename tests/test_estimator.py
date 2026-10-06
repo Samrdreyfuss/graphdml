@@ -262,7 +262,8 @@ def test_total_effect_is_direct_plus_weighted_peer(linear_ds):
     truth = 1.0 + 0.5 * has_nbrs
     assert abs(m.ate_ - truth) < 4 * f.loc["total", "std_err"]
     assert list(m.summary_frame(total=False).index) == ["direct", "peer:mean"]
-    assert "ATE (total)" in str(m.summary())
+    text = str(m.summary())
+    assert "ATE (total)" in text and "normal approximation" in text
 
 
 def test_total_effect_weights_for_sum_exposure_and_subpopulations(linear_ds):

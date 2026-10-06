@@ -91,6 +91,7 @@ def format_summary(est: GraphDML, alpha: float = 0.05) -> Summary:
     add("")
     for name in order:
         add(_wrap(f"{labels[name]}: {units[name]}", indent="  ", hang="    "))
+    add("  z-statistics: large-sample normal approximation, as in DoubleML.")
     add("")
 
     add("Diagnostics")
