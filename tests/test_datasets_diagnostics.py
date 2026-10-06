@@ -73,8 +73,8 @@ def test_negative_control_flags_homophily():
 
 
 def test_placebo_passes_on_clean_data(linear_ds):
-    result = placebo_test(GraphDML(**linear_learners(), exposure="mean"), linear_ds.data,
-                          n_permutations=3)
+    model = GraphDML(**linear_learners(), exposure="mean", random_state=0)
+    result = placebo_test(model, linear_ds.data, n_permutations=3)
     assert result.passed
     assert len(result.table) == 6
 
