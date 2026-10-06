@@ -12,8 +12,10 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          cache-dependency-glob: pyproject.toml
       - run: uvx ruff check .
 
   test:
@@ -27,12 +29,13 @@ jobs:
           - python: "3.13"
             deps: "latest"
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
         with:
+          activate-environment: true
+          cache-dependency-glob: pyproject.toml
           python-version: ${{ matrix.python }}
       - name: Install
-        # setup-uv creates and activates .venv when python-version is set
         run: |
           if [ "${{ matrix.deps }}" = "minimum" ]; then
             uv pip install --resolution lowest-direct -e ".[dev]"
@@ -46,9 +49,11 @@ jobs:
     if: github.event_name != 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
         with:
+          activate-environment: true
+          cache-dependency-glob: pyproject.toml
           python-version: "3.12"
       - run: uv pip install -e ".[dev]"
       - run: python -m pytest -m slow
@@ -67,9 +72,11 @@ jobs:
           --health-cmd "wget -qO- http://localhost:7474 || exit 1"
           --health-interval 5s --health-timeout 5s --health-retries 40
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
         with:
+          activate-environment: true
+          cache-dependency-glob: pyproject.toml
           python-version: "3.12"
       - run: uv pip install -e ".[dev]"
       - run: python -m pytest tests/test_neo4j.py

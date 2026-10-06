@@ -17,8 +17,8 @@ back to Neo4j.
 ## Install
 
 ```bash
-pip install "git+https://github.com/Samrdreyfuss/graphdml.git"            # core
-pip install "graphdml[neo4j] @ git+https://github.com/Samrdreyfuss/graphdml.git"
+pip install graphdml            # core
+pip install "graphdml[neo4j]"   # with Neo4j support
 ```
 
 Requires Python 3.10+. Core dependencies: numpy, scipy, pandas, scikit-learn.
