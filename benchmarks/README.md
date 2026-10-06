@@ -9,6 +9,7 @@ summary to `results/<name>.md`. `report.py` assembles `docs/validation-results.m
 | `coverage.py` | Do 95% intervals cover at 95% with oracle and correctly specified nuisances? Two-stage gate. | ~2 min |
 | `design_choices.py` | Which defaults (score, nuisance training, feature hops) work best with ML nuisances? | ~5 min |
 | `lastfm_experiment.py` | Does GraphDML recover known effects on a real social network (semi-synthetic)? | ~3 min |
+| `ate_coverage.py` | Does the total effect (ATE) row cover at the nominal rate? | ~4 min |
 | `focal_tradeoff.py` | What does restricting to the focal set cost in efficiency, and what does ignoring dependence cost in coverage? | ~3 min |
 
 ```bash

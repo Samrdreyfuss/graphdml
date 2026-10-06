@@ -59,7 +59,7 @@ def placebo_test(
     rows = []
     for p in range(n_permutations):
         est = clone(estimator).fit(data.with_values(T=rng.permutation(data.T)))
-        frame = est.summary_frame(alpha).assign(permutation=p)
+        frame = est.summary_frame(alpha, total=False).assign(permutation=p)
         rows.append(frame.reset_index())
     table = pd.concat(rows, ignore_index=True)
     passed = _bonferroni_pass(table, alpha)
@@ -80,7 +80,7 @@ def negative_control_test(
     unaffected by treatment, e.g. the same outcome measured before treatment.
     """
     est = clone(estimator).fit(data.with_values(Y=outcome))
-    table = est.summary_frame(alpha).reset_index()
+    table = est.summary_frame(alpha, total=False).reset_index()
     passed = _bonferroni_pass(table, alpha)
     msg = (
         "No effect on the negative-control outcome."
@@ -106,7 +106,7 @@ def two_hop_test(estimator: Any, data: GraphData, alpha: float = 0.05) -> Falsif
     )
     two_hop = TwoHopExposure("mean" if averaged else "sum")
     est = clone(estimator).set_params(exposure=[*exposures, two_hop]).fit(data)
-    table = est.summary_frame(alpha).reset_index()
+    table = est.summary_frame(alpha, total=False).reset_index()
     table["n_focal"] = est.n_focal_
     p = float(table.iloc[-1]["p_value"])
     passed = p >= alpha

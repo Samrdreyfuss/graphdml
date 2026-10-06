@@ -3,11 +3,11 @@
 **Causal effects on networks, with honest confidence intervals.**
 
 When a treatment reaches one person, it often reaches their friends too: a vaccine protects
-the neighbors, a coupon gets shared, a training spreads by word of mouth. graphdml estimates
-both effects separately:
+the neighbors, a coupon gets shared, a training spreads by word of mouth. graphdml estimates:
 
-* the **direct effect**: what the treatment does for the person who receives it
-* the **peer effect**: what it does for the people connected to them
+* the **ATE**: the average effect of treating everyone vs no one, including the ripple
+* the **direct effect** (ADE): what the treatment does for the person who receives it
+* the **peer effect** (APE): what it does for the people connected to them
 
 It uses double machine learning with any scikit-learn model, adjusts for confounding that
 runs through the network, and reports confidence intervals that account for neighbors
@@ -35,16 +35,24 @@ print(model.summary())
 ```
 
 ```
-                    coef   std err        z    P>|z|      [2.5%    97.5%]
-direct            -1.879    0.1275   -14.73    0.000     -2.129    -1.629
-peer:sum         -0.4341    0.0689    -6.30    0.000    -0.5692   -0.2991
+                       coef   std err        z    P>|z|      [2.5%    97.5%]
+ATE (total)          -4.437    0.4217   -10.52    0.000     -5.263     -3.61
+direct (ADE)         -1.879    0.1275   -14.73    0.000     -2.129    -1.629
+peer (APE): sum     -0.4341    0.0689    -6.30    0.000    -0.5692   -0.2991
 
-  direct:       change in Y when own treatment goes 0 → 1
-  peer:sum:     change in Y per additional treated neighbor
+  ATE (total): change in Y from treating every node vs none (direct + peer)
+  direct (ADE): change in Y when own treatment goes 0 → 1, neighbors unchanged
+  peer (APE): sum: change in Y per additional treated neighbor
 ```
 
-The full summary also reports diagnostics, warnings and the assumptions the estimate relies
-on. Methods that ignore the network get this example wrong, because health-conscious
+Vaccinating the whole town would cut sick days by about 4.4 (truth: 4.9): 1.9 from each
+person's own shot, plus 0.4 for each of their roughly 6 vaccinated neighbors. The full
+summary also reports diagnostics, warnings and the assumptions the estimate relies on.
+
+**Coming from DML?** The `ATE (total)` row is the number you are used to: the average effect
+of treatment vs no treatment for everyone. On a network it splits into a direct part and a
+peer part, and the peer part is what standard DML misses. Access them with `model.ate_`,
+`model.ade_` and `model.ape_`, or as a DataFrame with `model.summary_frame()`. Methods that ignore the network get this example wrong, because health-conscious
 residents cluster together:
 
 ```python

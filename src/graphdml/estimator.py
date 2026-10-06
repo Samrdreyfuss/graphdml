@@ -124,7 +124,10 @@ class GraphDML(BaseEstimator):
     ----------
     coef_, se_, cov_ : estimates, standard errors and covariance, ordered as
         ``coef_names_`` (``"direct"`` then ``"peer:<exposure>"``).
+    ate_ : the average total effect, treating every node vs none (direct + peer).
     ade_, ape_ : the direct and (first) peer effect.
+    total_weights_ : weights turning ``coef_`` into the total effect: 1 for the direct
+        effect and, per exposure, its average value when every node is treated.
     focal_nodes_, fold_assignment_ : focal node positions and their folds (first rep).
     n_focal_ : effective sample size.
     residuals_ : per-focal-node predictions and residuals (first rep).
@@ -218,6 +221,11 @@ class GraphDML(BaseEstimator):
         self.coef_reps_ = coefs
         self.se_reps_ = np.sqrt(np.diagonal(covs, axis1=1, axis2=2))
         self.exposures_ = exposures
+        # Total effect (ATE of treating everyone vs no one) = direct + sum_k peer_k * Ebar_k,
+        # where Ebar_k is the average exposure k when every node is treated.
+        population = self._population(n)
+        full = np.ones(n)
+        self.total_weights_ = np.r_[1.0, [float(np.mean((Ek @ full)[population])) for Ek in E]]
         self.settings_ = {**s, "featurizer": featurizer}
         self.treatment_is_binary_ = binary
         self.n_nodes_ = n
@@ -306,6 +314,13 @@ class GraphDML(BaseEstimator):
         cov = sandwich_cov(R, D, y, coef)
         return _Rep(focal, fold, coef, cov, R, D, y, t_hat, y_hat, res_y)
 
+    def _population(self, n: int) -> np.ndarray:
+        """Nodes the estimate is about: ``estimation_nodes`` if given, else all nodes."""
+        if self.estimation_nodes is None:
+            return np.arange(n)
+        nodes = np.asarray(self.estimation_nodes)
+        return np.flatnonzero(nodes) if nodes.dtype == bool else np.unique(nodes.astype(int))
+
     def _focal_nodes(self, dep, spec, rng, n) -> np.ndarray:
         candidates = None
         if self.estimation_nodes is not None:
@@ -376,6 +391,12 @@ class GraphDML(BaseEstimator):
             raise NotFittedError("This GraphDML instance is not fitted yet; call fit(data).")
 
     @property
+    def ate_(self) -> float:
+        """Average total effect: treating every node vs no node (direct + peer)."""
+        self._check_fitted()
+        return float(self.total_weights_ @ self.coef_)
+
+    @property
     def ade_(self) -> float:
         """Average direct effect."""
         self._check_fitted()
@@ -387,24 +408,41 @@ class GraphDML(BaseEstimator):
         self._check_fitted()
         return float(self.coef_[1]) if len(self.coef_) > 1 else None
 
-    def summary_frame(self, alpha: float = 0.05) -> pd.DataFrame:
-        """Estimates, standard errors, z statistics, p-values and confidence intervals."""
+    def summary_frame(self, alpha: float = 0.05, total: bool = True) -> pd.DataFrame:
+        """Estimates, standard errors, z statistics, p-values and confidence intervals.
+
+        Rows: ``direct`` (ADE), one ``peer:<exposure>`` row per exposure (APE), and, when
+        there is a peer effect and ``total=True``, ``total``: the average total effect of
+        treating every node vs no node (the ATE).
+        """
         self._check_fitted()
-        lo, hi = normal_ci(self.coef_, self.se_, alpha)
-        z = self.coef_ / self.se_
+        return self._frame(self.cov_, alpha, total)
+
+    def _frame(self, cov: np.ndarray, alpha: float, total: bool) -> pd.DataFrame:
+        coef, names = self.coef_, list(self.coef_names_)
+        se = np.sqrt(np.diag(cov))
+        if total and len(coef) > 1:
+            w = self.total_weights_
+            coef = np.r_[coef, w @ coef]
+            se = np.r_[se, np.sqrt(w @ cov @ w)]
+            names.append("total")
+        lo, hi = normal_ci(coef, se, alpha)
+        z = coef / se
         return pd.DataFrame(
             {
-                "coef": self.coef_,
-                "std_err": self.se_,
+                "coef": coef,
+                "std_err": se,
                 "z": z,
                 "p_value": 2 * stats.norm.sf(np.abs(z)),
                 "ci_lower": lo,
                 "ci_upper": hi,
             },
-            index=pd.Index(self.coef_names_, name="effect"),
+            index=pd.Index(names, name="effect"),
         )
 
-    def cluster_summary_frame(self, groups: Any, alpha: float = 0.05) -> pd.DataFrame:
+    def cluster_summary_frame(
+        self, groups: Any, alpha: float = 0.05, total: bool = True
+    ) -> pd.DataFrame:
         """Like :meth:`summary_frame`, with standard errors clustered by ``groups``.
 
         ``groups`` gives a cluster label for every node (e.g. village). Use it when nodes
@@ -415,17 +453,10 @@ class GraphDML(BaseEstimator):
             raise ValueError("cluster_summary_frame requires n_rep=1.")
         R, D, y = self._final_stage
         g = np.asarray(groups)[self.focal_nodes_]
-        se = np.sqrt(np.diag(sandwich_cov(R, D, y, self.coef_, groups=g)))
-        lo, hi = normal_ci(self.coef_, se, alpha)
-        z = self.coef_ / se
-        return pd.DataFrame(
-            {"coef": self.coef_, "std_err": se, "z": z, "p_value": 2 * stats.norm.sf(np.abs(z)),
-             "ci_lower": lo, "ci_upper": hi},
-            index=pd.Index(self.coef_names_, name="effect"),
-        )
+        return self._frame(sandwich_cov(R, D, y, self.coef_, groups=g), alpha, total)
 
-    def conf_int(self, alpha: float = 0.05) -> pd.DataFrame:
-        return self.summary_frame(alpha)[["ci_lower", "ci_upper"]]
+    def conf_int(self, alpha: float = 0.05, total: bool = True) -> pd.DataFrame:
+        return self.summary_frame(alpha, total)[["ci_lower", "ci_upper"]]
 
     def summary(self, alpha: float = 0.05) -> Summary:
         """Human-readable results, diagnostics, warnings and identifying assumptions."""

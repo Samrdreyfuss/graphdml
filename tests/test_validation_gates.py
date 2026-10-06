@@ -29,7 +29,7 @@ def _coverage(make_model):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             m = make_model(ds, seed).fit(ds.data)
-        ci = m.conf_int().to_numpy()
+        ci = m.conf_int(total=False).to_numpy()
         covered.append((ci[:, 0] <= [1.0, 0.5]) & ([1.0, 0.5] <= ci[:, 1]))
     return np.mean(covered, axis=0)
 

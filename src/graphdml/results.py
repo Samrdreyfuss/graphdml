@@ -39,7 +39,7 @@ def format_summary(est: GraphDML, alpha: float = 0.05) -> Summary:
     lines: list[str] = []
     add = lines.append
 
-    add("GraphDML: direct and peer effects")
+    add("GraphDML: treatment effects on a network")
     add("═" * _WIDTH)
     exposure = ", ".join(e.name for e in est.exposures_) or "none (direct effect only)"
     add(
@@ -56,28 +56,41 @@ def format_summary(est: GraphDML, alpha: float = 0.05) -> Summary:
     add(f"Nodes: {d['n_nodes']:,}   Focal nodes (effective sample size): {focal_label}")
     add("")
 
+    # Practitioner-facing labels and units; the ATE (total effect) comes first.
+    labels = {"total": "ATE (total)", "direct": "direct (ADE)"}
+    units = {
+        "total": (
+            "change in Y from treating every node vs none (direct + peer)"
+            if binary
+            else "change in Y from raising every node's treatment by one unit"
+        ),
+        "direct": (
+            "change in Y when own treatment goes 0 → 1, neighbors unchanged"
+            if binary
+            else "change in Y per unit of own treatment, neighbors unchanged"
+        ),
+    }
+    for name, e in zip(est.coef_names_[1:], est.exposures_, strict=True):
+        labels[name] = f"peer (APE): {e.name}"
+        units[name] = e.units(binary)
+    order = [n for n in ["total", *est.coef_names_] if n in frame.index]
+
     lo_label = f"[{100 * alpha / 2:g}%"
     hi_label = f"{100 * (1 - alpha / 2):g}%]"
-    name_w = max(12, *(len(n) for n in frame.index)) + 2
+    name_w = max(14, *(len(labels[n]) for n in order)) + 2
     add(
         f"{'':<{name_w}}{'coef':>10}{'std err':>10}{'z':>9}{'P>|z|':>9}"
         f"{lo_label:>11}{hi_label:>10}"
     )
-    for name, row in frame.iterrows():
+    for name in order:
+        row = frame.loc[name]
         add(
-            f"{name:<{name_w}}{row.coef:>10.4g}{row.std_err:>10.4g}{row.z:>9.2f}"
+            f"{labels[name]:<{name_w}}{row.coef:>10.4g}{row.std_err:>10.4g}{row.z:>9.2f}"
             f"{row.p_value:>9.3f}{row.ci_lower:>11.4g}{row.ci_upper:>10.4g}"
         )
     add("")
-    unit_w = name_w
-    direct_units = (
-        "change in Y when own treatment goes 0 → 1"
-        if binary
-        else "change in Y per unit increase in own treatment"
-    )
-    add(f"  {'direct:':<{unit_w}}{direct_units}")
-    for name, e in zip(est.coef_names_[1:], est.exposures_, strict=True):
-        add(f"  {name + ':':<{unit_w}}{e.units(binary)}")
+    for name in order:
+        add(_wrap(f"{labels[name]}: {units[name]}", indent="  ", hang="    "))
     add("")
 
     add("Diagnostics")

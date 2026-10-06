@@ -240,9 +240,42 @@ def test_cluster_se_matches_statsmodels_and_singletons_match_hc0(linear_ds):
     m = GraphDML(**linear_learners(), exposure="mean", score="partialling-out",
                  random_state=0).fit(linear_ds.data)
     singletons = np.arange(linear_ds.data.n_nodes)
-    np.testing.assert_allclose(m.cluster_summary_frame(singletons)["std_err"], m.se_)
+    np.testing.assert_allclose(m.cluster_summary_frame(singletons, total=False)["std_err"], m.se_)
     groups = np.arange(linear_ds.data.n_nodes) // 50
     R = m.residuals_[["res_t", "res_peer:mean"]].to_numpy()
     ref = sm.OLS(m.residuals_["res_y"].to_numpy(), R).fit(
         cov_type="cluster", cov_kwds={"groups": groups[m.focal_nodes_], "use_correction": False})
-    np.testing.assert_allclose(m.cluster_summary_frame(groups)["std_err"], ref.bse, rtol=1e-8)
+    clustered = m.cluster_summary_frame(groups, total=False)["std_err"]
+    np.testing.assert_allclose(clustered, ref.bse, rtol=1e-8)
+
+
+# ---------------------------------------------------------------- total effect (ATE)
+def test_total_effect_is_direct_plus_weighted_peer(linear_ds):
+    m = GraphDML(**linear_learners(), exposure="mean", random_state=0).fit(linear_ds.data)
+    has_nbrs = np.mean(linear_ds.data.degree > 0)
+    np.testing.assert_allclose(m.total_weights_, [1.0, has_nbrs])
+    f = m.summary_frame()
+    assert list(f.index) == ["direct", "peer:mean", "total"]
+    w = m.total_weights_
+    assert f.loc["total", "coef"] == pytest.approx(w @ m.coef_) == pytest.approx(m.ate_)
+    assert f.loc["total", "std_err"] == pytest.approx(np.sqrt(w @ m.cov_ @ w))
+    truth = 1.0 + 0.5 * has_nbrs
+    assert abs(m.ate_ - truth) < 4 * f.loc["total", "std_err"]
+    assert list(m.summary_frame(total=False).index) == ["direct", "peer:mean"]
+    assert "ATE (total)" in str(m.summary())
+
+
+def test_total_effect_weights_for_sum_exposure_and_subpopulations(linear_ds):
+    d = linear_ds.data
+    m = GraphDML(**linear_learners(), exposure="sum", random_state=0).fit(d)
+    assert m.total_weights_[1] == pytest.approx(d.degree.mean())
+    sub = np.arange(1000)
+    m2 = GraphDML(**linear_learners(), exposure="sum", estimation_nodes=sub,
+                  random_state=0).fit(d)
+    assert m2.total_weights_[1] == pytest.approx(d.degree[sub].mean())
+
+
+def test_no_total_row_without_peer_effect(linear_ds):
+    m = GraphDML(**linear_learners(), exposure=None, random_state=0).fit(linear_ds.data)
+    assert list(m.summary_frame().index) == ["direct"]
+    assert m.ate_ == pytest.approx(m.ade_)

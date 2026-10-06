@@ -32,7 +32,7 @@ def fit(d, villages, label, **kw) -> list[dict]:
             "estimate (median of 5 seeds)": np.median(coefs),
             "se": np.median([m.se_[j] for m in fits]),
             "se clustered by village": np.median(
-                [m.cluster_summary_frame(villages)["std_err"].iloc[j] for m in fits]),
+                [m.cluster_summary_frame(villages, total=False)["std_err"].iloc[j] for m in fits]),
             "seed spread": np.ptp(coefs),
             "focal n": fits[0].n_focal_,
         })

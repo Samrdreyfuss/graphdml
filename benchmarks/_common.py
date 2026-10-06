@@ -31,7 +31,7 @@ def run_seeds(fn: Callable[[int], list[dict]], seeds: range, n_jobs: int = -1) -
 
 def estimate_rows(model, truth: dict, seed: int, **labels) -> list[dict]:
     """One row per effect: estimate, SE, CI and whether it covers the truth."""
-    frame = model.summary_frame()
+    frame = model.summary_frame(total=False)
     keys = {"direct": "ade"}
     rows = []
     for name, r in frame.iterrows():

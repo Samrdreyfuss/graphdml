@@ -82,6 +82,13 @@ def tradeoff_section() -> str:
     ])
 
 
+def ate_section() -> str:
+    path = RESULTS / "ate_coverage.md"
+    if not path.exists():
+        return ""
+    return "## Total effect (ATE)\n" + path.read_text().split("\n", 2)[2]
+
+
 def lastfm_section() -> str:
     path = RESULTS / "lastfm_experiment.csv"
     if not path.exists():
@@ -109,5 +116,5 @@ if __name__ == "__main__":
         "`benchmarks/results/*.csv`.\n"
     )
     DOC.write_text("\n\n".join([header, coverage_section(), design_section(),
-                                tradeoff_section(), lastfm_section()]) + "\n")
+                                ate_section(), tradeoff_section(), lastfm_section()]) + "\n")
     print(f"wrote {DOC}")

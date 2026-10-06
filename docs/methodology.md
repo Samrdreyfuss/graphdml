@@ -26,6 +26,12 @@ $$
   this is **network confounding**.
 * $\theta_0$ is the **average direct effect** (ADE) and $\alpha_0$ the **average peer
   effect** (APE). Several exposures give one $\alpha$ per exposure.
+* The **average total effect** (ATE) compares treating every node with treating none:
+  $\tau_{\text{ATE}} = \theta_0 + \sum_k \alpha_{0,k}\, \bar e_k$, where $\bar e_k$ is the
+  average of exposure $k$ when all nodes are treated (the mean row sum of $E_k$ over the
+  target population: 1 for nodes with neighbors under `"mean"`, the in-degree under `"sum"`).
+  Its standard error is $\sqrt{w^\top \hat\Sigma w}$ with $w = (1, \bar e_1, \dots)$. The
+  target population is `estimation_nodes` if given, otherwise all nodes.
 
 **Assumptions.** (A.1) Noise terms are independent across nodes given
 covariates. (A.2) Interference is confined to the exposure neighborhood. (A.3) The exposure

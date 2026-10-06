@@ -78,14 +78,14 @@ def compare_methods(
         warnings.simplefilter("ignore", GraphDMLWarning)
         frames["DML, own covariates (i.i.d.)"] = iid_dml(
             data, random_state=random_state
-        ).summary_frame(alpha)
+        ).summary_frame(alpha, total=False)
         frames["DML + neighbor aggregates (no focal set)"] = aggregate_dml(
             data, exposure, random_state=random_state
-        ).summary_frame(alpha)
+        ).summary_frame(alpha, total=False)
         est = estimator if estimator is not None else GraphDML(
             exposure=exposure, random_state=random_state
         )
-        frames["GraphDML"] = est.fit(data).summary_frame(alpha)
+        frames["GraphDML"] = est.fit(data).summary_frame(alpha, total=False)
 
     rows = []
     for method, frame in frames.items():
