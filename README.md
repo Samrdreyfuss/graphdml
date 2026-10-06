@@ -1,5 +1,10 @@
 # graphdml
 
+[![PyPI](https://img.shields.io/pypi/v/graphdml)](https://pypi.org/project/graphdml/)
+[![Python](https://img.shields.io/pypi/pyversions/graphdml)](https://pypi.org/project/graphdml/)
+[![CI](https://github.com/Samrdreyfuss/graphdml/actions/workflows/ci.yml/badge.svg)](https://github.com/Samrdreyfuss/graphdml/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/Samrdreyfuss/graphdml/blob/main/LICENSE)
+
 **Causal effects on networks, with honest confidence intervals.**
 
 When a treatment reaches one person, it often reaches their friends too: a vaccine protects
@@ -14,14 +19,36 @@ runs through the network, and reports confidence intervals that account for neig
 being dependent. Graphs can come from pandas, networkx or Neo4j, and results can be written
 back to Neo4j.
 
-## Install
+## Installation
+
+graphdml is on [PyPI](https://pypi.org/project/graphdml/) and needs **Python 3.10 or newer**.
 
 ```bash
-pip install graphdml            # core
-pip install "graphdml[neo4j]"   # with Neo4j support
+pip install graphdml               # core: numpy, scipy, pandas, scikit-learn
+pip install "graphdml[neo4j]"      # + Neo4j integration (official neo4j driver)
 ```
 
-Requires Python 3.10+. Core dependencies: numpy, scipy, pandas, scikit-learn.
+Check the installation:
+
+```bash
+python -c "import graphdml; print(graphdml.__version__)"
+```
+
+Upgrade with `pip install --upgrade graphdml`. With [uv](https://docs.astral.sh/uv/), use
+`uv pip install graphdml` or `uv add graphdml`.
+
+<details>
+<summary>Trouble installing?</summary>
+
+* **`pip: command not found`**: use `python3 -m pip install graphdml`.
+* **"No matching distribution found"**: your Python is older than 3.10 (macOS ships 3.9).
+  Install a newer Python, e.g. `brew install python@3.12` or `uv python install 3.12`.
+* **"externally-managed-environment"**: your Python (e.g. Homebrew's) protects its own
+  packages. Install into a virtual environment:
+  `python3.12 -m venv .venv && source .venv/bin/activate && pip install graphdml`.
+* **Latest development version**: `pip install "git+https://github.com/Samrdreyfuss/graphdml.git"`.
+
+</details>
 
 ## Quickstart
 
@@ -104,7 +131,7 @@ Neo4jResultWriter(driver=src.driver).write(
 Each run is stored as a `(:GDMLRun)` node linked to the nodes it was estimated on, with
 per-node predictions and residuals, and never modifies your data. Try it locally with
 `docker compose up -d && python -m graphdml.demo --password graphdml-demo`. The
-[Neo4j guide](docs/neo4j.md) covers directed graphs, custom Cypher and GDS embeddings.
+[Neo4j guide](https://github.com/Samrdreyfuss/graphdml/blob/main/docs/neo4j.md) covers directed graphs, custom Cypher and GDS embeddings.
 
 ## Example datasets
 
@@ -143,12 +170,12 @@ an analysis goes wrong.
 4. **Final stage.** A robust moment condition gives the direct and peer effects, with
    sandwich (optionally cluster-robust) standard errors.
 
-Details: [methodology](docs/methodology.md) · [design choices and evidence](docs/design.md).
+Details: [methodology](https://github.com/Samrdreyfuss/graphdml/blob/main/docs/methodology.md) · [design choices and evidence](https://github.com/Samrdreyfuss/graphdml/blob/main/docs/design.md).
 
 ## Validation
 
-graphdml is tested against pre-specified criteria ([protocol](docs/validation.md),
-[results](docs/validation-results.md)):
+graphdml is tested against pre-specified criteria ([protocol](https://github.com/Samrdreyfuss/graphdml/blob/main/docs/validation.md),
+[results](https://github.com/Samrdreyfuss/graphdml/blob/main/docs/validation-results.md)):
 
 * Matches DoubleML and statsmodels exactly in the cases where they apply.
 * 95% intervals cover at the nominal rate on simulated graphs with known truth.
@@ -166,6 +193,11 @@ uses every node, and sensitivity analysis for unobserved confounding.
 
 The estimator builds on Khatami, Parikh, Chen, Roy and Salimi, [*Graph Machine Learning based
 Doubly Robust Estimator for Network Causal Effects*](https://proceedings.mlr.press/v258/khatami25a.html)
-(AISTATS 2025). Please cite their paper along with graphdml ([CITATION.cff](CITATION.cff)).
+(AISTATS 2025). Please cite their paper along with graphdml ([CITATION.cff](https://github.com/Samrdreyfuss/graphdml/blob/main/CITATION.cff)).
+
+## Contributing and changes
+
+Bug reports and pull requests are welcome; see [CONTRIBUTING.md](https://github.com/Samrdreyfuss/graphdml/blob/main/CONTRIBUTING.md). Release
+notes are in [CHANGELOG.md](https://github.com/Samrdreyfuss/graphdml/blob/main/CHANGELOG.md).
 
 MIT licensed.

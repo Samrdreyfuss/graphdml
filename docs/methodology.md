@@ -182,8 +182,8 @@ nodes. Falsification tests (`graphdml.diagnostics`):
 
 `GraphDML(mode="original")` reproduces the original GDML procedure: random-order focal set,
 focal-only nuisance training, partialling-out score, DML1, $K = 3$, and own plus summed-neighbor
-features (the inputs of a one-layer GIN). The nuisance learners are whatever you pass; a
-GIN learner arrives with the `[gnn]` extra.
+features (the inputs of a one-layer GIN). The nuisance learners are whatever you pass;
+graph neural network learners are planned.
 
 ## 11. Out of scope for V1
 
