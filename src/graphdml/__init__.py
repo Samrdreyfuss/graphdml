@@ -19,7 +19,7 @@ from graphdml.exposure import (
 )
 from graphdml.features import NeighborhoodFeatures, OwnFeatures, PrecomputedFeatures
 
-__version__ = "0.1.0.dev0"
+__version__ = "0.1.0"
 
 __all__ = [
     "ExposureMap",

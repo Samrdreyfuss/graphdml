@@ -6,7 +6,7 @@ authors:
   - family-names: Dreyfuss
     given-names: Sam
 license: MIT
-version: 0.1.0.dev0
+version: 0.1.0
 repository-code: "https://github.com/Samrdreyfuss/graphdml"
 references:
   - type: conference-paper

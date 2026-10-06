@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "graphdml"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "Double machine learning for causal effects on networks: direct and peer effects with valid confidence intervals."
 readme = "README.md"
 license = "MIT"
