@@ -237,8 +237,19 @@ class GraphData:
     def treatment_is_binary(self) -> bool:
         return bool(np.isin(self.T, (0.0, 1.0)).all())
 
-    def with_values(self, *, T: Any = None, Y: Any = None, X: Any = None) -> GraphData:
-        """Return a copy with the treatment, outcome and/or covariates replaced."""
+    def with_values(
+        self,
+        *,
+        T: Any = None,
+        Y: Any = None,
+        X: Any = None,
+        feature_names: Sequence[str] | None = None,
+    ) -> GraphData:
+        """Return a copy with the treatment, outcome and/or covariates replaced.
+
+        If ``X`` changes its number of columns and no ``feature_names`` are given, the
+        names are reset to ``X0, X1, ...``.
+        """
         changes: dict[str, Any] = {}
         if T is not None:
             changes["T"] = T
@@ -246,6 +257,11 @@ class GraphData:
             changes["Y"] = Y
         if X is not None:
             changes["X"] = X
+            n_cols = 1 if np.ndim(X) == 1 else np.shape(X)[1]
+            if feature_names is None and n_cols != self.n_features:
+                changes["feature_names"] = None
+        if feature_names is not None:
+            changes["feature_names"] = feature_names
         return replace(self, **changes)
 
     def to_pandas(self) -> tuple[pd.DataFrame, pd.DataFrame]:

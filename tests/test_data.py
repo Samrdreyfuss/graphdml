@@ -86,6 +86,15 @@ def test_from_networkx():
     assert data.n_edges == 2 and not data.directed
 
 
+def test_with_values_handles_new_covariate_columns():
+    data = GraphData.from_edges(np.zeros((3, 1)), [0, 1, 1], [0, 0, 0], [], feature_names=["a"])
+    wider = data.with_values(X=np.ones((3, 2)))
+    assert wider.feature_names == ("X0", "X1")
+    named = data.with_values(X=np.ones((3, 2)), feature_names=["a", "b"])
+    assert named.feature_names == ("a", "b")
+    assert data.with_values(Y=[1, 2, 3]).feature_names == ("a",)
+
+
 def test_treatment_type_and_with_values():
     data = GraphData.from_edges(np.zeros((3, 1)), [0, 1, 1], [0, 0, 0], [])
     assert data.treatment_is_binary
