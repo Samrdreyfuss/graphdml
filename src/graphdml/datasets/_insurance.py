@@ -43,6 +43,9 @@ PUBLISHED = {
 _COVARIATES = ["male", "age", "agpop", "ricearea_2010", "literacy", "risk_averse",
                "disaster_prob"]
 
+_REQUIRED_FILES = ("0422survey.dta", "0422allinforawnet.dta")
+_DATA_URL = "https://www.openicpsr.org/openicpsr/project/113593/version/V1/view"
+
 
 def load_insurance_experiment(data_dir: str | os.PathLike) -> GraphDataset:
     """Load the insurance experiment as a :class:`GraphDataset` (no ground truth).
@@ -62,6 +65,14 @@ def load_insurance_experiment(data_dir: str | os.PathLike) -> GraphDataset:
       estimates.
     """
     data_dir = Path(data_dir).expanduser()
+    missing = [f for f in _REQUIRED_FILES if not (data_dir / f).exists()]
+    if missing:
+        raise FileNotFoundError(
+            f"Could not find {', '.join(missing)} in {data_dir}. This dataset is not bundled "
+            "with graphdml: download the replication package (free openICPSR account, CC BY "
+            f"4.0) from {_DATA_URL}, unzip it, and pass the folder that contains the .dta "
+            "files (the 'data/data' folder)."
+        )
     survey = pd.read_stata(data_dir / "0422survey.dta")
     noms = pd.read_stata(data_dir / "0422allinforawnet.dta")
     noms = noms[~((noms["network_missname"] == 1) & noms["network_id"].isna())]

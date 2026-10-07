@@ -135,16 +135,47 @@ per-node predictions and residuals, and never modifies your data. Try it locally
 
 ## Example datasets
 
-| Dataset | Story | Shows |
-|---|---|---|
-| `make_flu_town` | flu shots and sick days among neighbors | direct vs peer effects, network confounding |
-| `make_referral_app` | promo coupons in an app with influencers | choosing the exposure map |
-| `make_classroom_tutoring` | tutoring hours and test scores | continuous treatment, who the estimate is about |
-| `make_homophily_trap` | a course whose true peer effect is zero | a failure mode and how to catch it |
-| `make_lastfm_promo` | a promotion on the real LastFM Asia network | real topology and covariates, known truth |
-| `load_insurance_experiment` | a randomized field experiment with 4,902 farmers | real data (download from openICPSR) |
+Six of these ship inside the package. Two need data from outside: one downloads
+automatically, one you download yourself.
 
-Every dataset comes with a story card: `print(ds.DESCR)`.
+| Dataset | Story | Shows | Data needed |
+|---|---|---|---|
+| `make_flu_town` | flu shots and sick days among neighbors | direct vs peer effects, network confounding | none (generated offline) |
+| `make_referral_app` | promo coupons in an app with influencers | choosing the exposure map | none (generated offline) |
+| `make_classroom_tutoring` | tutoring hours and test scores | continuous treatment, who the estimate is about | none (generated offline) |
+| `make_homophily_trap` | a course whose true peer effect is zero | a failure mode and how to catch it | none (generated offline) |
+| `make_toy_graph` | 30 hand-drawn nodes | pictures of focal sets and folds (too small to estimate anything) | none (generated offline) |
+| `make_lastfm_promo` | a promotion on the real LastFM Asia network | real topology and covariates, known truth | **internet on first use** (6.5 MB, automatic) |
+| `load_insurance_experiment` | a randomized field experiment with 4,902 farmers | real data, no known truth | **you download it** (free account) |
+
+The first five are simulated with known true effects, so you can check an estimate against
+the answer. Every dataset comes with a story card: `print(ds.DESCR)`.
+
+### Datasets that need outside data
+
+**LastFM Asia** (`make_lastfm_promo`): the social network and covariates are real, the
+treatment and outcome are simulated. On first use it downloads the network from
+[SNAP](https://snap.stanford.edu/data/feather-lastfm-social.html), checks its checksum and
+caches it in `~/.cache/graphdml` (set `GRAPHDML_DATA` to change the location). After that it
+works offline. If you are offline or behind a firewall, download `lastfm_asia.zip` yourself
+and put it in the cache folder. Please cite Rozemberczki and Sarkar (CIKM 2020), also shown
+in `ds.extras["citation"]`.
+
+**Insurance experiment** (`load_insurance_experiment`): a real randomized experiment with a
+real friendship network, from Cai, de Janvry and Sadoulet (2015). graphdml does not
+redistribute it. Download the replication package from
+[openICPSR project 113593](https://www.openicpsr.org/openicpsr/project/113593/version/V1/view)
+(free account, CC BY 4.0 license), unzip it, and point the loader at the folder that holds
+`0422survey.dta` and `0422allinforawnet.dta`:
+
+```python
+from graphdml.datasets import load_insurance_experiment
+
+ds = load_insurance_experiment("~/Downloads/113593-V1/data/data")
+```
+
+If the files are not found, the error tells you where to get them. See the dataset's story
+card for the published estimates to compare against.
 
 ## Checking an analysis
 

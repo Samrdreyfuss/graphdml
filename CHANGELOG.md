@@ -15,6 +15,13 @@ All notable changes to graphdml are listed here. Versions follow
 - `GraphData.with_values(..., feature_names=...)`; covariates may change their number of
   columns.
 - Installation guide, badges and project links in the README and on PyPI.
+- README datasets table now says which datasets need outside data (LastFM downloads on
+  first use, the insurance experiment must be downloaded from openICPSR), and lists
+  `make_toy_graph`.
+
+### Improved
+- `load_insurance_experiment` explains where to get the data when the files are missing,
+  and `fetch_lastfm_asia` explains what to do when the download fails.
 
 ### Changed
 - `summary_frame()` includes a `"total"` row by default when a peer exposure is fitted.
