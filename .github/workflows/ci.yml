@@ -62,7 +62,9 @@ jobs:
     runs-on: ubuntu-latest
     services:
       neo4j:
-        image: neo4j:5.26-community
+        # Pulled through Google's Docker Hub mirror: Docker Hub rate-limits anonymous pulls
+        # from shared CI runners, which made this job fail at random.
+        image: mirror.gcr.io/library/neo4j:5.26-community
         env:
           NEO4J_AUTH: neo4j/graphdml-ci
           NEO4J_PLUGINS: '["graph-data-science"]'
