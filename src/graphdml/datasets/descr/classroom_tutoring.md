@@ -40,3 +40,8 @@ print("estimate:         ", m.ade_)
 With constant effects (the default) both truths coincide. With varying effects, report the
 estimand honestly: "the average effect among students like those in the focal set", and check
 how the focal set differs from everyone (`m.diagnostics_["mean_degree_focal"]`).
+
+**Known accuracy on this dataset.** Over 200 draws, estimates run slightly toward zero
+(direct about 1.5%, peer about 10%, total about 3%) and 95% intervals cover the truth about
+91-92% of the time, a little under nominal. The signs and sizes are right, and ignoring the
+network is far worse: it gets the sign of the peer effect wrong.

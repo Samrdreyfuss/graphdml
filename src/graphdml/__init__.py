@@ -18,6 +18,7 @@ from graphdml.exposure import (
     WeightedExposure,
 )
 from graphdml.features import NeighborhoodFeatures, OwnFeatures, PrecomputedFeatures
+from graphdml.selftest import selftest
 
 __version__ = "0.1.0"
 
@@ -37,5 +38,6 @@ __all__ = [
     "__version__",
     "negative_control_test",
     "placebo_test",
+    "selftest",
     "two_hop_test",
 ]

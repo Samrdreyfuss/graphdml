@@ -177,6 +177,35 @@ ds = load_insurance_experiment("~/Downloads/113593-V1/data/data")
 If the files are not found, the error tells you where to get them. See the dataset's story
 card for the published estimates to compare against.
 
+## Does it find real signals? Run the self-test
+
+graphdml ships a check you can run on your own machine. It simulates two worlds with the
+same strong network confounding: one with planted effects (direct +1.0, peer +0.6) and a
+**null twin** with none. It fits the model many times and compares with the known truth.
+
+```python
+import graphdml
+print(graphdml.selftest(n_reps=60))     # about 30 seconds on a 10-core laptop
+```
+
+```
+graphdml self-test: PASSED (60 repetitions per world)
+
+                truth  mean_estimate  coverage  detected  naive_detected
+world   effect
+planted direct  1.000          1.049     0.917     1.000           1.000
+        peer    0.600          0.635     0.983     1.000           1.000
+null    direct  0.000          0.050     0.917     0.083           1.000
+        peer    0.000          0.036     0.967     0.033           1.000
+```
+
+In the planted world graphdml finds both effects every time. In the null world, where
+nothing is happening, it raises a false alarm 3 to 8% of the time (5% is the target), while
+a method that ignores the network reports an effect **every time**, because the
+confounding looks like a treatment effect. The full output also lists the pass criteria.
+You can test your own settings with `graphdml.selftest(estimator=GraphDML(...))`, and use
+the data directly with `make_signal_check()`.
+
 ## Checking an analysis
 
 ```python

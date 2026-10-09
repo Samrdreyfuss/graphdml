@@ -6,6 +6,10 @@ All notable changes to graphdml are listed here. Versions follow
 ## [Unreleased]
 
 ### Added
+- `graphdml.selftest()` and `make_signal_check()`: a built-in check, on synthetic data with
+  planted effects and a null twin that has none, that the estimator finds real signals and
+  does not invent false ones. Reports bias, coverage, power and false-alarm rates against
+  fixed criteria, next to a network-blind baseline.
 - **ATE (total effect)**: the average effect of treating every node vs none, reported first
   in `summary()` and as a `"total"` row in `summary_frame()`, `cluster_summary_frame()` and
   `conf_int()`, with `model.ate_` and `model.total_weights_`. Pass `total=False` for the
