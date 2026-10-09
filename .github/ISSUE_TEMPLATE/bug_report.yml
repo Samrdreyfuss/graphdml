@@ -1,0 +1,39 @@
+name: Bug report
+description: Something does not work, or an estimate looks wrong
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal example
+      description: Code that reproduces it. `graphdml.datasets` generators make good shareable data.
+      render: python
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: graphdml version
+      placeholder: "python -c 'import graphdml; print(graphdml.__version__)'"
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python and OS
+      placeholder: "3.12 on macOS 15"
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output or traceback
+      description: Paste `model.summary()` for estimation questions, or the full error.
+      render: text

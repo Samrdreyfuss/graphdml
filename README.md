@@ -135,8 +135,8 @@ per-node predictions and residuals, and never modifies your data. Try it locally
 
 ## Example datasets
 
-Six of these ship inside the package. Two need data from outside: one downloads
-automatically, one you download yourself.
+All of these are included in the package. Five generate their data offline; two need data
+from outside: one downloads automatically, one you download yourself.
 
 | Dataset | Story | Shows | Data needed |
 |---|---|---|---|

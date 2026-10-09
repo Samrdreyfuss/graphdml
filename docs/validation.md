@@ -93,6 +93,9 @@ focal set is tiny.
 
 ## Layer 5: user-facing checks
 
+`graphdml.selftest()` lets anyone re-run a signal check on their own machine: planted
+effects versus a null twin, against fixed criteria (see the README).
+
 `summary()` prints diagnostics and the identifying assumptions with every fit, and warns on
 small focal sets, weak overlap, collinear residuals and isolated focal nodes. The
 falsification checks in `graphdml.diagnostics` are tested to pass on clean data and to flag

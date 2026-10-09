@@ -24,6 +24,9 @@ All notable changes to graphdml are listed here. Versions follow
   `make_toy_graph`.
 
 ### Improved
+- Repository polish: code of conduct, security policy, issue forms and a pull-request
+  template; `py.typed` marker so type checkers use graphdml's annotations; CI pulls the Neo4j
+  test image through a mirror, which fixes random failures from Docker Hub rate limits.
 - `load_insurance_experiment` explains where to get the data when the files are missing,
   and `fetch_lastfm_asia` explains what to do when the download fails.
 
