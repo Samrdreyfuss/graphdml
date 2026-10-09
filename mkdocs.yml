@@ -1,0 +1,63 @@
+site_name: graphdml
+site_description: Causal effects on networks with double machine learning
+site_url: https://samrdreyfuss.github.io/graphdml/
+repo_url: https://github.com/Samrdreyfuss/graphdml
+repo_name: Samrdreyfuss/graphdml
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle: {icon: material/weather-night, name: Switch to dark mode}
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle: {icon: material/weather-sunny, name: Switch to light mode}
+
+nav:
+  - Home: index.md
+  - Guides:
+      - Example datasets: datasets.md
+      - Neo4j integration: neo4j.md
+  - Method:
+      - Methodology: methodology.md
+      - Design choices: design.md
+  - Validation:
+      - Protocol: validation.md
+      - Results: validation-results.md
+  - API reference: api.md
+  - Changelog: changelog.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      check_paths: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            show_source: false
+            show_root_heading: true
+            heading_level: 3
+            members_order: source

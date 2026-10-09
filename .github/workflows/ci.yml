@@ -18,6 +18,19 @@ jobs:
           cache-dependency-glob: pyproject.toml
       - run: uvx ruff check .
 
+  docs:
+    # Catches broken links and API-docs errors before they reach the published site.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.12"
+          activate-environment: true
+          cache-dependency-glob: pyproject.toml
+      - run: uv pip install -e ".[docs]"
+      - run: mkdocs build --strict
+
   test:
     runs-on: ubuntu-latest
     strategy:
