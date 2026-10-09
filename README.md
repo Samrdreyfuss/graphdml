@@ -135,16 +135,76 @@ per-node predictions and residuals, and never modifies your data. Try it locally
 
 ## Example datasets
 
-| Dataset | Story | Shows |
-|---|---|---|
-| `make_flu_town` | flu shots and sick days among neighbors | direct vs peer effects, network confounding |
-| `make_referral_app` | promo coupons in an app with influencers | choosing the exposure map |
-| `make_classroom_tutoring` | tutoring hours and test scores | continuous treatment, who the estimate is about |
-| `make_homophily_trap` | a course whose true peer effect is zero | a failure mode and how to catch it |
-| `make_lastfm_promo` | a promotion on the real LastFM Asia network | real topology and covariates, known truth |
-| `load_insurance_experiment` | a randomized field experiment with 4,902 farmers | real data (download from openICPSR) |
+Six of these ship inside the package. Two need data from outside: one downloads
+automatically, one you download yourself.
 
-Every dataset comes with a story card: `print(ds.DESCR)`.
+| Dataset | Story | Shows | Data needed |
+|---|---|---|---|
+| `make_flu_town` | flu shots and sick days among neighbors | direct vs peer effects, network confounding | none (generated offline) |
+| `make_referral_app` | promo coupons in an app with influencers | choosing the exposure map | none (generated offline) |
+| `make_classroom_tutoring` | tutoring hours and test scores | continuous treatment, who the estimate is about | none (generated offline) |
+| `make_homophily_trap` | a course whose true peer effect is zero | a failure mode and how to catch it | none (generated offline) |
+| `make_toy_graph` | 30 hand-drawn nodes | pictures of focal sets and folds (too small to estimate anything) | none (generated offline) |
+| `make_lastfm_promo` | a promotion on the real LastFM Asia network | real topology and covariates, known truth | **internet on first use** (6.5 MB, automatic) |
+| `load_insurance_experiment` | a randomized field experiment with 4,902 farmers | real data, no known truth | **you download it** (free account) |
+
+The first five are simulated with known true effects, so you can check an estimate against
+the answer. Every dataset comes with a story card: `print(ds.DESCR)`.
+
+### Datasets that need outside data
+
+**LastFM Asia** (`make_lastfm_promo`): the social network and covariates are real, the
+treatment and outcome are simulated. On first use it downloads the network from
+[SNAP](https://snap.stanford.edu/data/feather-lastfm-social.html), checks its checksum and
+caches it in `~/.cache/graphdml` (set `GRAPHDML_DATA` to change the location). After that it
+works offline. If you are offline or behind a firewall, download `lastfm_asia.zip` yourself
+and put it in the cache folder. Please cite Rozemberczki and Sarkar (CIKM 2020), also shown
+in `ds.extras["citation"]`.
+
+**Insurance experiment** (`load_insurance_experiment`): a real randomized experiment with a
+real friendship network, from Cai, de Janvry and Sadoulet (2015). graphdml does not
+redistribute it. Download the replication package from
+[openICPSR project 113593](https://www.openicpsr.org/openicpsr/project/113593/version/V1/view)
+(free account, CC BY 4.0 license), unzip it, and point the loader at the folder that holds
+`0422survey.dta` and `0422allinforawnet.dta`:
+
+```python
+from graphdml.datasets import load_insurance_experiment
+
+ds = load_insurance_experiment("~/Downloads/113593-V1/data/data")
+```
+
+If the files are not found, the error tells you where to get them. See the dataset's story
+card for the published estimates to compare against.
+
+## Does it find real signals? Run the self-test
+
+graphdml ships a check you can run on your own machine. It simulates two worlds with the
+same strong network confounding: one with planted effects (direct +1.0, peer +0.6) and a
+**null twin** with none. It fits the model many times and compares with the known truth.
+
+```python
+import graphdml
+print(graphdml.selftest(n_reps=60))     # about 30 seconds on a 10-core laptop
+```
+
+```
+graphdml self-test: PASSED (60 repetitions per world)
+
+                truth  mean_estimate  coverage  detected  naive_detected
+world   effect
+planted direct  1.000          1.049     0.917     1.000           1.000
+        peer    0.600          0.635     0.983     1.000           1.000
+null    direct  0.000          0.050     0.917     0.083           1.000
+        peer    0.000          0.036     0.967     0.033           1.000
+```
+
+In the planted world graphdml finds both effects every time. In the null world, where
+nothing is happening, it raises a false alarm 3 to 8% of the time (5% is the target), while
+a method that ignores the network reports an effect **every time**, because the
+confounding looks like a treatment effect. The full output also lists the pass criteria.
+You can test your own settings with `graphdml.selftest(estimator=GraphDML(...))`, and use
+the data directly with `make_signal_check()`.
 
 ## Checking an analysis
 

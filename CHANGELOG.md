@@ -6,6 +6,10 @@ All notable changes to graphdml are listed here. Versions follow
 ## [Unreleased]
 
 ### Added
+- `graphdml.selftest()` and `make_signal_check()`: a built-in check, on synthetic data with
+  planted effects and a null twin that has none, that the estimator finds real signals and
+  does not invent false ones. Reports bias, coverage, power and false-alarm rates against
+  fixed criteria, next to a network-blind baseline.
 - **ATE (total effect)**: the average effect of treating every node vs none, reported first
   in `summary()` and as a `"total"` row in `summary_frame()`, `cluster_summary_frame()` and
   `conf_int()`, with `model.ate_` and `model.total_weights_`. Pass `total=False` for the
@@ -15,6 +19,13 @@ All notable changes to graphdml are listed here. Versions follow
 - `GraphData.with_values(..., feature_names=...)`; covariates may change their number of
   columns.
 - Installation guide, badges and project links in the README and on PyPI.
+- README datasets table now says which datasets need outside data (LastFM downloads on
+  first use, the insurance experiment must be downloaded from openICPSR), and lists
+  `make_toy_graph`.
+
+### Improved
+- `load_insurance_experiment` explains where to get the data when the files are missing,
+  and `fetch_lastfm_asia` explains what to do when the download fails.
 
 ### Changed
 - `summary_frame()` includes a `"total"` row by default when a peer exposure is fitted.

@@ -136,3 +136,26 @@ def test_insurance_experiment_if_available():
     assert np.mean(np.isclose(ex["exposure"](d)[ok], pr[ok])) > 0.95
     m = GraphDML(exposure=None, estimation_nodes=~ex["second_round"], random_state=0).fit(d)
     assert abs(m.ade_ - ex["published"]["ade_first_round"]["coef"]) < 2 * m.se_[0]
+
+
+def test_insurance_loader_explains_missing_data(tmp_path):
+    from graphdml.datasets import load_insurance_experiment
+
+    with pytest.raises(FileNotFoundError, match=r"openicpsr\.org.*113593"):
+        load_insurance_experiment(tmp_path)
+
+
+def test_lastfm_download_failure_is_explained(tmp_path, monkeypatch):
+    import urllib.error
+    import urllib.request
+
+    from graphdml.datasets import fetch_lastfm_asia
+
+    def offline(*args, **kwargs):
+        raise urllib.error.URLError("no network")
+
+    monkeypatch.setattr(urllib.request, "urlopen", offline)
+    with pytest.raises(OSError, match="place it at"):
+        fetch_lastfm_asia(data_home=tmp_path)
+    with pytest.raises(FileNotFoundError, match="download=False"):
+        fetch_lastfm_asia(data_home=tmp_path, download=False)

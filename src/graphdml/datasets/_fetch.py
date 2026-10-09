@@ -66,8 +66,15 @@ def fetch_lastfm_asia(
     if not path.exists():
         if not download:
             raise FileNotFoundError(f"{path} not found and download=False.")
-        with urllib.request.urlopen(_LASTFM_URL, timeout=60) as r:
-            payload = r.read()
+        try:
+            with urllib.request.urlopen(_LASTFM_URL, timeout=60) as r:
+                payload = r.read()
+        except OSError as e:  # URLError and timeouts are OSErrors
+            raise OSError(
+                f"Could not download LastFM Asia from {_LASTFM_URL} ({e}). Check your "
+                f"internet connection, or download lastfm_asia.zip yourself and place it at "
+                f"{path}."
+            ) from e
         if hashlib.sha256(payload).hexdigest() != _LASTFM_SHA256:
             raise OSError("Checksum mismatch for lastfm_asia.zip; refusing to use it.")
         path.write_bytes(payload)
