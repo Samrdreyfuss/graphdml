@@ -7,6 +7,8 @@
 
 **Causal effects on networks, with honest confidence intervals.**
 
+**[Documentation](https://samrdreyfuss.github.io/graphdml/)** · [PyPI](https://pypi.org/project/graphdml/) · [Changelog](https://github.com/Samrdreyfuss/graphdml/blob/main/CHANGELOG.md)
+
 When a treatment reaches one person, it often reaches their friends too: a vaccine protects
 the neighbors, a coupon gets shared, a training spreads by word of mouth. graphdml estimates:
 

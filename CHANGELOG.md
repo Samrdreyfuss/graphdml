@@ -5,7 +5,11 @@ All notable changes to graphdml are listed here. Versions follow
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-09
+
 ### Added
+- Documentation site (https://samrdreyfuss.github.io/graphdml/): guides, methodology,
+  validation, example datasets and an API reference generated from the docstrings.
 - `graphdml.selftest()` and `make_signal_check()`: a built-in check, on synthetic data with
   planted effects and a null twin that has none, that the estimator finds real signals and
   does not invent false ones. Reports bias, coverage, power and false-alarm rates against
@@ -53,5 +57,6 @@ First release.
 - Neo4j integration: load graphs, write results back, GDS FastRP features, demo.
 - Validation suite and benchmarks.
 
-[Unreleased]: https://github.com/Samrdreyfuss/graphdml/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Samrdreyfuss/graphdml/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Samrdreyfuss/graphdml/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Samrdreyfuss/graphdml/releases/tag/v0.1.0

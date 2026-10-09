@@ -87,17 +87,36 @@ def selftest(
 
     Parameters
     ----------
-    n_reps : repetitions per world; each fits one model on a fresh ``n``-node graph.
-    estimator : an unfitted :class:`GraphDML` to test (default: ``GraphDML(exposure="mean")``
-        with the library's default learners). Pass your own to test your settings.
+    n_reps : int, default=30
+        Repetitions per world; each fits one model on a fresh ``n``-node graph.
+    n : int, default=6000
+        Nodes per simulated graph.
+    direct_effect, peer_effect : float
+        The effects planted in the signal world (the null world has none).
+    estimator : GraphDML, optional
+        An unfitted estimator to test (default: ``GraphDML(exposure="mean")`` with the
+        library's default learners). Pass your own to test your settings.
+    alpha : float, default=0.05
+        Significance level used for detection and false alarms.
+    n_jobs : int, default=-1
+        Parallel workers (joblib).
+    random_state : int, default=0
+        Seeds the repetitions.
 
-    Checks (set from statistics, not tuned to results; the bands use 3 Monte Carlo
-    standard errors, so they loosen when ``n_reps`` is small):
+    Returns
+    -------
+    SelfTestResult
+        ``passed``, a results ``table`` and the individual ``checks``.
+
+    Notes
+    -----
+    The criteria are set from statistics, not tuned to results. The bands use 3 Monte
+    Carlo standard errors, so they loosen when ``n_reps`` is small.
 
     * **coverage**: the share of 95% intervals containing the truth is at least
-      ``0.95 - 3 * SE`` in the planted world, for every effect;
+      ``0.95 - 3 * SE`` in the planted world, for every effect.
     * **power**: the planted direct and peer effects are detected in at least 80% of runs,
-      with the correct sign;
+      with the correct sign.
     * **false alarms**: in the null world, the share of runs that claim an effect is at
       most ``alpha + 3 * SE``, for every effect.
     """
