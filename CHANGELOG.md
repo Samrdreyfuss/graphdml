@@ -5,6 +5,11 @@ All notable changes to graphdml are listed here. Versions follow
 
 ## [Unreleased]
 
+### Improved
+- README and docs describe the example datasets precisely: simulated datasets have known
+  truth; the insurance experiment is one real randomized study whose data is downloaded
+  separately, and only its direct effect is reproduced closely.
+
 ## [0.2.0] - 2026-10-09
 
 ### Added

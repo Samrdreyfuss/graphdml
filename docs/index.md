@@ -37,7 +37,7 @@ print(model.summary())
 
 | | |
 |---|---|
-| [Example datasets](datasets.md) | Eight datasets with known truth, and the story behind each |
+| [Example datasets](datasets.md) | Seven simulated datasets with known truth, plus one real randomized experiment, with the story behind each |
 | [Methodology](methodology.md) | Exactly what `fit` computes, and why |
 | [Design choices](design.md) | Each default, with the evidence behind it |
 | [Validation](validation.md) | The protocol, and the [results](validation-results.md) |

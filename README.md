@@ -140,6 +140,12 @@ per-node predictions and residuals, and never modifies your data. Try it locally
 All of these are included in the package. Five generate their data offline; two need data
 from outside: one downloads automatically, one you download yourself.
 
+The simulated datasets have known true effects, so you can test whether the method recovers
+them (the self-test below does this systematically). `load_insurance_experiment` is a loader
+and worked analysis for one real randomized network experiment, Cai, de Janvry and Sadoulet
+(2015), whose data you download separately. graphdml reproduces that study's published direct
+effect; its peer-effect estimate is less precise.
+
 | Dataset | Story | Shows | Data needed |
 |---|---|---|---|
 | `make_flu_town` | flu shots and sick days among neighbors | direct vs peer effects, network confounding | none (generated offline) |
@@ -244,7 +250,7 @@ graphdml is tested against pre-specified criteria ([protocol](https://github.com
 * On the real LastFM Asia network (100 replications): bias under 2.5%, coverage 0.92–0.96.
   Network-blind methods were off by 37–71% and never covered.
 * On the randomized insurance experiment, the direct effect matches the published estimate
-  (0.148 vs 0.141).
+  (0.148 vs 0.141); the peer effect is estimated less precisely and is not significant.
 
 ## Status
 
